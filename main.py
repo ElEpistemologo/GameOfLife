@@ -1,4 +1,8 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import config
+
+config.configurer_pythonpath()
+
 from controleur import *
 
 automate_etat_1 = []
