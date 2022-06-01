@@ -1,8 +1,10 @@
 # Script de contrôle de l'application
 
+from typing import List
+
 # Demande à l'utilisateur la taille de l'automate
 # Retourne la valeur saisie par l'utilisateur
-def demander_taille_automate():
+def demander_taille_automate() -> List[int]:
     hauteurValide = False
     largeurValide = False
 
@@ -34,7 +36,7 @@ def demander_taille_automate():
     print(f"Vous avez saisi hauteur={hauteur} et largeur={largeur}")
     return [int(largeur), int(hauteur)]
 
-def afficher_automate(automate):
+def afficher_automate(automate: List[List[str]]):
     largeur = len(automate)
     hauteur = len(automate[0])
 
