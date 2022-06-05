@@ -1,5 +1,9 @@
-class GameOfLifeException(Exception):
 
+
+# Exception relevant les erreurs lors de l'initialisation ou du calul de l'automate cellulaire
+class GameOfLifeException(Exception):
+    ################## CODES ERREURS #######################
+    # 1: parametres invalides
     def __init__(self: object, code_exception: int, message_exception: str):
         BaseException.__init__(self, message_exception)
         self.code_exception = code_exception
