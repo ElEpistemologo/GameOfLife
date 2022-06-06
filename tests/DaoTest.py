@@ -4,7 +4,7 @@ from typing import List
 import config
 config.configurer_pythonpath()
 
-from ConfigurationAutomate import ConfigurationAutomate
+from ConfigurationAutomateJohnConway import ConfigurationAutomate
 from DaoInterface import DaoInterface
 from Utilisateur import Utilisateur
 

@@ -3,7 +3,7 @@ import unittest
 import config
 config.configurer_pythonpath()
 
-import modele
+import AutomateJohnConway
 import GameOfLifeException
 
 class TestModele(unittest.TestCase):

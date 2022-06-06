@@ -1,6 +1,6 @@
 import json
 from typing import List
-from ConfigurationAutomate import ConfigurationAutomate
+from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from GameOfLifeException import GameOfLifeException
 
 class Utilisateur(object):
@@ -10,12 +10,12 @@ class Utilisateur(object):
     # pseudo: chaine de cractère de longueur [4, 20]
     # configurations_automate: liste des identifiants de configuration d'automate, des entiers positifs
     # cette liste ne doit pas dépasser 20 éléments et ne doit pas comporter de doublons
-    def __init__(self, pseudo: str, configurations_automate: List[int] = []):
+    def __init__(self, pseudo: str, identifiants_configurations_automate: List[int] = []):
         self.pseudo = pseudo
-        self.configurations_automate = configurations_automate
+        self.identifiants_configurations_automate = identifiants_configurations_automate
 
     def __str__(self):
-        jsonUtilisateur = {"Pseudo":self.pseudo, "Configurations":self.configurations_automate}
+        jsonUtilisateur = {"Pseudo":self.pseudo, "Identifiants de configurations":self.identifiants_configurations_automate}
         return json.dumps(jsonUtilisateur, separators=(',', ':'))
 
     @property
@@ -23,8 +23,8 @@ class Utilisateur(object):
         return self.__pseudo
 
     @property
-    def configurations_automate(self) -> List[int]:
-        return self.__configurations_automate
+    def identifiants_configurations_automate(self) -> List[int]:
+        return self.__identifiants_configurations_automate
 
     # pseudo: chaine de cractère de longueur [4, 20]
     @pseudo.setter
@@ -36,23 +36,23 @@ class Utilisateur(object):
         else:
             self.__pseudo = pseudo
 
-    # configurations_automate: liste de ConfigurationAutomate, de longueur [0,20]
+    # identifiants_configurations_automate: liste de ConfigurationAutomate, de longueur [0,20]
     # cette liste ne doit pas contenir de configurations d'identifiants égaux
-    @configurations_automate.setter
-    def configurations_automate(self, configurations_automate: List[ConfigurationAutomate]):
-        if not isinstance(configurations_automate, list):
+    @identifiants_configurations_automate.setter
+    def identifiants_configurations_automate(self, identifiants_configurations_automate: List[int]):
+        if not isinstance(identifiants_configurations_automate, list):
             raise ValueError("La liste de configurations d'automates est invalide")
-        elif len(configurations_automate) > 20:
+        elif len(identifiants_configurations_automate) > 20:
             raise ValueError("La liste de configurations est trop longue. Longueur maximum: 20")
         else:
-            # vérifie si tous les éléments de la liste sont des ConfigurationAutomate
-            for config in configurations_automate:
+            # vérifie si tous les éléments de la liste sont des entiers
+            for config in identifiants_configurations_automate:
                 if not isinstance(config, int):
                     raise ValueError("La liste de configurations d'automates est invalide")
             # vérifie s'il n'y a pas de doublons dans les identifiants des configurations
-            for i in range(len(configurations_automate)-1):
-                identifiant_a_verifier = configurations_automate[i]
-                for j in range(len(configurations_automate))[i+1:]:
-                    if identifiant_a_verifier == configurations_automate[j]:
+            for i in range(len(identifiants_configurations_automate)-1):
+                identifiant_a_verifier = identifiants_configurations_automate[i]
+                for j in range(len(identifiants_configurations_automate))[i+1:]:
+                    if identifiant_a_verifier == identifiants_configurations_automate[j]:
                         raise ValueError("Un utilisateur ne peut pas avoir deux configurations de même identifiant")
-            self.__configurations_automate = configurations_automate
+            self.__identifiants_configurations_automate = identifiants_configurations_automate

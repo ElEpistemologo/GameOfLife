@@ -4,11 +4,11 @@ from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 
 class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
 
-    def __init__(self, identifiant: int, nom: str, largeur: int, hauteur: int):
-        self.identifiant = identifiant
-        self.nom = nom
-        self.largeur = largeur
-        self.hauteur = hauteur
+    def __init__(self, parametres:List):
+        self.identifiant = parametres[0]
+        self.nom = parametres[1]
+        self.largeur = parametres[2]
+        self.hauteur = parametres[3]
 
     def __str__(self):
         return json.dumps({"Identifiant":self.identifiant, "Nom":self.nom, "Largeur":self.largeur, "Hauteur": self.hauteur}, separators=(',', ':'))

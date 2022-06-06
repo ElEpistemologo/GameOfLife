@@ -2,52 +2,52 @@ import unittest
 import config
 config.configurer_pythonpath()
 
-from ConfigurationAutomate import ConfigurationAutomate
+from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 from Utilisateur import Utilisateur
 import GameOfLifeException
 
-class TestConfigurationAutomate(unittest.TestCase):
+class TestConfigurationAutomateJohnConway(unittest.TestCase):
 
     def test_constructeur_1(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomate(1, "nom", -1, 5)
+            automate = ConfigurationAutomateJohnConway([1, "nom", -1, 5])
 
     def test_constructeur_2(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomate(1, "nom", 5, -1)
+            automate = ConfigurationAutomateJohnConway([1, "nom", 5, -1])
 
     def test_constructeur_3(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomate(1, "nom", 101, 5)
+            automate = ConfigurationAutomateJohnConway([1, "nom", 101, 5])
 
     def test_constructeur_4(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomate(1, "nom", 5, 101)
+            automate = ConfigurationAutomateJohnConway([1, "nom", 5, 101])
 
     def test_constructeur_5(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomate(1, 0, 5, 5)
+            automate = ConfigurationAutomateJohnConway([1, 0, 5, 5])
 
     def test_constructeur_6(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomate(40, "nom", 5, 5)
+            automate = ConfigurationAutomateJohnConway([40, "nom", 5, 5])
 
     def test_constructeur_7(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomate(-1, "nom", 5, 5)
+            automate = ConfigurationAutomateJohnConway([-1, "nom", 5, 5])
 
     def test_constructeur_8(self):
-        automate = ConfigurationAutomate(2, "automateTest", 5, 6)
+        config_automate = ConfigurationAutomateJohnConway([2, "automateTest", 5, 6])
         jsonAttendu = "{\"Identifiant\":2,\"Nom\":\"automateTest\",\"Largeur\":5,\"Hauteur\":6}"
-        self.assertEqual(automate.__str__(), jsonAttendu)
+        self.assertEqual(config_automate.__str__(), jsonAttendu)
 
     def test_constructeur_9(self):
-        configurationAutomate = ConfigurationAutomate(2, "automateTest", 5, 6)
-        self.assertIsInstance(configurationAutomate, ConfigurationAutomate)
+        config_automate = ConfigurationAutomateJohnConway([2, "automateTest", 5, 6])
+        self.assertIsInstance(config_automate, ConfigurationAutomateJohnConway)
 
     def test_dictionnaireParametresConfiguration_1(self):
-        configurationAutomate = ConfigurationAutomate(2, "automateTest", 5, 6)
-        self.assertEqual(configurationAutomate.dictionnaireParametresConfiguration(),\
+        config_automate = ConfigurationAutomateJohnConway([2, "automateTest", 5, 6])
+        self.assertEqual(config_automate.parametres_configuration(),\
                          {"Identifiant":2, "Nom": "automateTest", "Largeur":5, "Hauteur":6})
 
 class TestUtilisateur(unittest.TestCase):
@@ -72,14 +72,14 @@ class TestUtilisateur(unittest.TestCase):
         with self.assertRaises(ValueError):
             liste_configuration = []
             for i in range(21):
-                liste_configuration.append(ConfigurationAutomate(1, "nom", 5, 5))
+                liste_configuration.append(ConfigurationAutomateJohnConway([1, "nom", 5, 5]))
             utilisateur = Utilisateur("Wluis", liste_configuration)
 
     def test_constructeur_6(self):
         liste_configuration = [1,2,3,4]
         utilisateur = Utilisateur("Wluis", liste_configuration)
         self.assertIsInstance(utilisateur, Utilisateur)
-        self.assertEqual(utilisateur.__str__(), "{\"Pseudo\":\"Wluis\",\"Configurations\":[1,2,3,4]}")
+        self.assertEqual(utilisateur.__str__(), "{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[1,2,3,4]}")
 
     def test_constructeur_7(self):
         with self.assertRaises(ValueError):
@@ -89,7 +89,7 @@ class TestUtilisateur(unittest.TestCase):
     def test_constructeur_8(self):
         liste_configuration = [1,2,3,4]
         utilisateur = Utilisateur("Wluis")
-        self.assertEqual(utilisateur.__str__(), "{\"Pseudo\":\"Wluis\",\"Configurations\":[]}")
+        self.assertEqual(utilisateur.__str__(), "{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[]}")
 
 if __name__ == "__main__":
     unittest.main()

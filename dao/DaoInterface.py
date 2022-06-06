@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from Utilisateur import Utilisateur
-from ConfigurationAutomate import ConfigurationAutomate
+from ConfigurationAutomateJohnConway import ConfigurationAutomate
 
 class DaoInterface(ABC):
 
