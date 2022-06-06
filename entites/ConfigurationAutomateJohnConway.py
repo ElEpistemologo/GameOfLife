@@ -1,6 +1,8 @@
 import json
 from typing import List, Dict
-class ConfigurationAutomate(object):
+from ConfigurationAutomateInterface import ConfigurationAutomateInterface
+
+class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
 
     def __init__(self, identifiant: int, nom: str, largeur: int, hauteur: int):
         self.identifiant = identifiant
@@ -12,7 +14,7 @@ class ConfigurationAutomate(object):
         return json.dumps({"Identifiant":self.identifiant, "Nom":self.nom, "Largeur":self.largeur, "Hauteur": self.hauteur}, separators=(',', ':'))
 
     # renvoie un dictionnaire contenant les paramètres de la configuration
-    def dictionnaireParametresConfiguration(self) -> Dict:
+    def parametres_configuration(self) -> Dict:
         return {"Identifiant": self.identifiant, "Nom": self.nom, "Largeur":self.largeur, "Hauteur":self.hauteur}
 
     @property
