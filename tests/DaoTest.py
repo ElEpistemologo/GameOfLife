@@ -4,16 +4,17 @@ from typing import List
 import config
 config.configurer_pythonpath()
 
-from ConfigurationAutomateJohnConway import ConfigurationAutomate
+from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
+from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from DaoInterface import DaoInterface
 from Utilisateur import Utilisateur
 
 class DaoTest(DaoInterface):
 
     def __init__(self):
-        config_automate_1 = ConfigurationAutomate(1,"config_1", 5, 5)
-        config_automate_2 = ConfigurationAutomate(2,"config_2", 4, 8)
-        config_automate_3 = ConfigurationAutomate(3,"config_3", 2, 12)
+        config_automate_1 = ConfigurationAutomateJohnConway([1,"config_1", 5, 5])
+        config_automate_2 = ConfigurationAutomateJohnConway([2,"config_2", 4, 8])
+        config_automate_3 = ConfigurationAutomateJohnConway([3,"config_3", 2, 12])
         self.table_configurations = [config_automate_1, config_automate_2,config_automate_3]
 
         utilisateur_1 = ["Wluis", "pswd_Wluis", [1,2]]
@@ -41,7 +42,7 @@ class DaoTest(DaoInterface):
                 return True
         return False
 
-    def obtenir_configuration_automate_par_identifiants(self, identifiants: List[int]) -> List[ConfigurationAutomate]:
+    def obtenir_configuration_automate_par_identifiants(self, identifiants: List[int]) -> List[ConfigurationAutomateInterface]:
         list_config = []
         for identifiants in identifiants:
             for config_existante in self.table_configurations:
@@ -51,8 +52,8 @@ class DaoTest(DaoInterface):
 
     def ajouter_configuration_automate(self, parametres: List) -> bool:
         try:
-            nouvelle_configuration_automate = ConfigurationAutomate(self.table_configurations[-1].identifiant+1, \
-                                                                parametres[0], parametres[1], parametres[2])
+            nouvelle_configuration_automate = ConfigurationAutomateJohnConway([self.table_configurations[-1].identifiant+1, \
+                                                                parametres[0], parametres[1], parametres[2]])
             self.table_configurations.append(nouvelle_configuration_automate)
         except Exception as exception:
             return False

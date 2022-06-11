@@ -39,7 +39,7 @@ class TestConfigurationAutomateJohnConway(unittest.TestCase):
     def test_constructeur_8(self):
         config_automate = ConfigurationAutomateJohnConway([2, "automateTest", 5, 6])
         jsonAttendu = "{\"Identifiant\":2,\"Nom\":\"automateTest\",\"Largeur\":5,\"Hauteur\":6}"
-        self.assertEqual(config_automate.__str__(), jsonAttendu)
+        self.assertEqual(config_automate.json(), jsonAttendu)
 
     def test_constructeur_9(self):
         config_automate = ConfigurationAutomateJohnConway([2, "automateTest", 5, 6])
