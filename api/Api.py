@@ -3,8 +3,10 @@ import json
 from flask import Flask, make_response, request
 from DaoInterface import DaoInterface
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
+from flask_cors import CORS
 
 api = Flask(__name__)
+cors = CORS(api, resources={r"/*":{"origins":"*"}})
 
 class DAOSingleton(object):
 
