@@ -132,7 +132,7 @@ class TestDaoTest(unittest.TestCase):
     def test_obtenir_configuration_automate_par_identifiants_1(self):
         dao_test = DaoTest()
         config = dao_test.obtenir_configuration_automate_par_identifiants([2])
-        self.assertEqual(config[0].__str__(), "{\"Identifiant\":2,\"Nom\":\"config_2\",\"Largeur\":4,\"Hauteur\":8}")
+        self.assertEqual(config[0].json(), "{\"Identifiant\":2,\"Nom\":\"config_2\",\"Largeur\":4,\"Hauteur\":8}")
 
     def test_obtenir_configuration_automate_par_identifiants_2(self):
         dao_test = DaoTest()

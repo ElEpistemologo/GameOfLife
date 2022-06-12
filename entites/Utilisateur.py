@@ -1,9 +1,8 @@
 import json
 from typing import List
-from ConfigurationAutomateInterface import ConfigurationAutomateInterface
-from GameOfLifeException import GameOfLifeException
 
 class Utilisateur(object):
+
 
     #Créer un Utilisateur
     # identifiant: entier

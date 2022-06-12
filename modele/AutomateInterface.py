@@ -11,3 +11,7 @@ class AutomateInterface(ABC):
     @abstractmethod
     def generation_suivante(self):
         pass
+
+    @abstractmethod
+    def __str__(self):
+        pass

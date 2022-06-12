@@ -6,9 +6,10 @@
       <sourceFolder url="file://$MODULE_DIR$/dao" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/entites" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/modele" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/api" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (GameOfLife)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

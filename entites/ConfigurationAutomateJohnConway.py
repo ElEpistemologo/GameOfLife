@@ -10,7 +10,7 @@ class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
         self.largeur = parametres[2]
         self.hauteur = parametres[3]
 
-    def __str__(self):
+    def json(self) -> str :
         return json.dumps({"Identifiant":self.identifiant, "Nom":self.nom, "Largeur":self.largeur, "Hauteur": self.hauteur}, separators=(',', ':'))
 
     # renvoie un dictionnaire contenant les paramètres de la configuration

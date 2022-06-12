@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from Utilisateur import Utilisateur
-from ConfigurationAutomateJohnConway import ConfigurationAutomate
+from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 
 class DaoInterface(ABC):
 
@@ -18,7 +18,7 @@ class DaoInterface(ABC):
         pass
 
     @abstractmethod
-    def obtenir_configuration_automate_par_identifiants(self, identifiants: List[int]) -> List[ConfigurationAutomate]:
+    def obtenir_configuration_automate_par_identifiants(self, identifiants: List[int]) -> List[ConfigurationAutomateInterface]:
         pass
 
     @abstractmethod
