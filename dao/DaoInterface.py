@@ -18,7 +18,7 @@ class DaoInterface(ABC):
         pass
 
     @abstractmethod
-    def obtenir_configuration_automate_par_identifiants(self, identifiants: List[int]) -> List[ConfigurationAutomateInterface]:
+    def obtenir_configuration_automate_par_identifiants(self, identifiants: List[int]) -> [List[ConfigurationAutomateInterface], bool] :
         pass
 
     @abstractmethod

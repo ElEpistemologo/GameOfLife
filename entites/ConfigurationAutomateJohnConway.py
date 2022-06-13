@@ -4,11 +4,12 @@ from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 
 class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
 
-    def __init__(self, parametres:List):
-        self.identifiant = parametres[0]
-        self.nom = parametres[1]
-        self.largeur = parametres[2]
-        self.hauteur = parametres[3]
+    def __init__(self, identifiant: str, nom: str, parametres:List):
+        self.identifiant = identifiant
+        self.nom = nom
+        self.largeur = parametres[0]
+        self.hauteur = parametres[1]
+        self.__type = "AJC"
 
     def json(self) -> str :
         return json.dumps({"Identifiant":self.identifiant, "Nom":self.nom, "Largeur":self.largeur, "Hauteur": self.hauteur}, separators=(',', ':'))
@@ -68,3 +69,6 @@ class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
             raise ValueError("La largeur de la configuration l'automate n'est pas dans les bornes valides. (Bornes valides: [1;99]")
         else:
             self.__largeur = largeur
+
+    def type(self):
+        return self.__type

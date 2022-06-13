@@ -9,13 +9,18 @@ class Utilisateur(object):
     # pseudo: chaine de cractère de longueur [4, 20]
     # configurations_automate: liste des identifiants de configuration d'automate, des entiers positifs
     # cette liste ne doit pas dépasser 20 éléments et ne doit pas comporter de doublons
-    def __init__(self, pseudo: str, identifiants_configurations_automate: List[int] = []):
+    def __init__(self, pseudo: str, mot_de_passe: str, identifiants_configurations_automate: List[int] = []):
         self.pseudo = pseudo
         self.identifiants_configurations_automate = identifiants_configurations_automate
+        self.mot_de_passe = mot_de_passe
 
     def __str__(self):
         jsonUtilisateur = {"Pseudo":self.pseudo, "Identifiants de configurations":self.identifiants_configurations_automate}
         return json.dumps(jsonUtilisateur, separators=(',', ':'))
+
+    @property
+    def mot_de_passe(self):
+        return self.__mot_de_passe
 
     @property
     def pseudo(self) -> str:
@@ -24,6 +29,15 @@ class Utilisateur(object):
     @property
     def identifiants_configurations_automate(self) -> List[int]:
         return self.__identifiants_configurations_automate
+
+    @mot_de_passe.setter
+    def mot_de_passe(self, mot_de_passe:str):
+        if not isinstance(mot_de_passe, str):
+            raise ValueError("Le pseudo de l'utilisateur doit être une chaine de caractère")
+        elif len(mot_de_passe) <4 or len(mot_de_passe) > 20:
+            raise ValueError("Le pseudo de l'utilisateur doit être de longueur [4-20]")
+        else:
+            self.__mot_de_passe = mot_de_passe
 
     # pseudo: chaine de cractère de longueur [4, 20]
     @pseudo.setter
