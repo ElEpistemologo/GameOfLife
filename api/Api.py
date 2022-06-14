@@ -1,12 +1,15 @@
 import json
 
-from flask import Flask, make_response, request
+from flask import Flask, make_response, request, session
 from DaoInterface import DaoInterface
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from flask_cors import CORS
 
+import config
+
 api = Flask(__name__)
-cors = CORS(api, resources={r"/*":{"origins":"*"}})
+api.secret_key = config.recuperer_cle_secrete()
+cors = CORS(api, origins=["*"], supports_credentials=True)
 
 class DAOSingleton(object):
 
@@ -32,6 +35,54 @@ def lancer_api(dao: DaoInterface):
     api.config.update(ENV="development", DEBUG=True)
     api.run()
 
+@api.route("/session")
+def retourner_session():
+
+    # si le client n'a pas de session, on initialise une session anonyme et on retourne les informations de base
+    if ( "pseudo" not in session ):
+        print(f"Nouvelle session anonyme émanant de {request}")
+        session["pseudo"] = "anonyme"
+        reponse = make_response(json.dumps({"pseudo": "Anonyme"}))
+        return reponse, 200
+    # si le client a une session anonyme, on retourne les informations de base
+    elif ( session["pseudo"] == "anonyme"):
+        pseudo = session["pseudo"]
+        print(f"Le client anonyme se reconnecte {request}; session={pseudo}")
+        reponse = make_response(json.dumps({"pseudo": "Anonyme"}))
+        return reponse, 200
+    # si le client a une session utilisateur, lui renvoyer ses informations
+    else:
+        pseudo = session["pseudo"]
+        print(f"Le client avec la requête {request} et la session = {pseudo} tente de récupérer ses informations")
+        recuperationUtilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(session["pseudo"])
+        if recuperationUtilisateur[1]:
+            utilisateur = recuperationUtilisateur[0]
+            reponse_json = {}
+            reponse_json["pseudo"] = utilisateur.pseudo
+            iterateur_configuration = 0
+            while iterateur_configuration < len(utilisateur.identifiants_configurations_automate):
+                identifiant_configuration = utilisateur.identifiants_configurations_automate[iterateur_configuration]
+                resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants(
+                    [identifiant_configuration])
+                if (resultat_recherche_config[1]):
+                    nom_configuration = resultat_recherche_config[0][0].nom
+                    reponse_json.update({identifiant_configuration: nom_configuration})
+                else:
+                    print(f"Une configuration de l'utilisateur {utilisateur.pseudo} n'a pas été trouvée")
+                iterateur_configuration += 1
+            print("L'utilisateur suivant s'est connecté à une session existante: " + str(json.dumps(reponse_json)))
+            response = make_response(json.dumps(reponse_json))
+            response.headers.set("Content-type", "application/json; charser=utf8")
+            return response
+        # si le client a une session correspondant à un utilisateur qui n'existe pas, change la session en anonyme
+        else:
+            pseudo = session["pseudo"]
+            print(f"Le client avec la requête {request} et la session = {pseudo} a échoué à récupérer ses informations")
+            session["pseudo"] = "anonyme"
+            reponse = make_response()
+            reponse.headers["Content-Length"] = 0
+            return reponse, 200
+
 # Accéder à une configuration par son identifiant
 @api.route("/configuration/obtenir/<identifiant>")
 def retourner_configuration(identifiant):
@@ -52,7 +103,7 @@ def retourner_configuration(identifiant):
 def enregistrer_configuration(identifiant: int):
 
     print(request)
-    #DAOSingleton.getDAO().ajouter_configuration_automate
+    pass
 
 # Supprimer une configuration
 @api.route("/configuration/supprimer")
@@ -84,9 +135,10 @@ def connecter_utilisateur():
                         print(f"Une configuration de l'utilisateur {utilisateur.pseudo} n'a pas été trouvée")
                     iterateur_configuration += 1
                 print("L'utilisateur suivant s'est connecté: " + str(json.dumps(reponse_json)))
+                session["pseudo"] = utilisateur.pseudo
                 response = make_response(json.dumps(reponse_json))
                 response.headers.set("Content-type", "application/json; charser=utf8")
-                return response
+                return response, 200
             else:
                 print("La tentative de connexion: " + str(requete_json)+ " a échoué: Mauvais mot de passe")
                 response = make_response(json.dumps({"message": "Les identifiants sont erronés"}))
@@ -104,7 +156,12 @@ def connecter_utilisateur():
 # Déconnexion utilisateur
 @api.route("/utilisateur/deconnecter")
 def deconnecter_utilisateur():
-    print(request)
+    pseudo = session["pseudo"]
+    print(f"Déconnexion de l'utilisateur {pseudo}")
+    session["pseudo"] = "anonyme"
+    reponse = make_response()
+    reponse.headers["Content-Length"] = 0
+    return reponse, 200
     pass
 
 # Nouvel utilisateur
