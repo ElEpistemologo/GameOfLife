@@ -11,4 +11,3 @@ def configurer_pythonpath():
     sys.path.insert(0, racine_application + CONTROLEUR_PATH)
     sys.path.insert(0, racine_application + MODELE_PATH)
     sys.path.insert(0, racine_application + ENTITES_PATH)
-

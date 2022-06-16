@@ -13,13 +13,13 @@ from Utilisateur import Utilisateur
 class DaoTest(DaoInterface):
 
     def __init__(self):
-        config_automate_1 = ConfigurationAutomateJohnConway(1,"config_1", [5, 5])
+        config_automate_1 = ConfigurationAutomateJohnConway(1,"Configuration par défaut", [5, 5])
         config_automate_2 = ConfigurationAutomateJohnConway(2,"config_2", [4, 8])
         config_automate_3 = ConfigurationAutomateJohnConway(3,"config_3", [2, 12])
         self.table_configurations = [config_automate_1, config_automate_2,config_automate_3]
 
         utilisateur_1 = Utilisateur("Wluis", "pswd_Wluis", [1,2])
-        utilisateur_2 = Utilisateur("Setruan", "pswd_Setruan", [2,7])
+        utilisateur_2 = Utilisateur("Setruan", "pswd_Setruan", [2,3])
         utilisateur_3 = Utilisateur("Ooskour", "pswd_Ooskour", [4,5])
         self.table_utilisateurs = [utilisateur_1, utilisateur_2, utilisateur_3]
 

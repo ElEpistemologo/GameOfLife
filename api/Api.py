@@ -4,6 +4,7 @@ from flask import Flask, make_response, request, session
 from DaoInterface import DaoInterface
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from flask_cors import CORS
+from Utilisateur import Utilisateur
 
 import config
 
@@ -57,19 +58,7 @@ def retourner_session():
         recuperationUtilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(session["pseudo"])
         if recuperationUtilisateur[1]:
             utilisateur = recuperationUtilisateur[0]
-            reponse_json = {}
-            reponse_json["pseudo"] = utilisateur.pseudo
-            iterateur_configuration = 0
-            while iterateur_configuration < len(utilisateur.identifiants_configurations_automate):
-                identifiant_configuration = utilisateur.identifiants_configurations_automate[iterateur_configuration]
-                resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants(
-                    [identifiant_configuration])
-                if (resultat_recherche_config[1]):
-                    nom_configuration = resultat_recherche_config[0][0].nom
-                    reponse_json.update({identifiant_configuration: nom_configuration})
-                else:
-                    print(f"Une configuration de l'utilisateur {utilisateur.pseudo} n'a pas été trouvée")
-                iterateur_configuration += 1
+            reponse_json = creer_informations_utilisateur(utilisateur)
             print("L'utilisateur suivant s'est connecté à une session existante: " + str(json.dumps(reponse_json)))
             response = make_response(json.dumps(reponse_json))
             response.headers.set("Content-type", "application/json; charser=utf8")
@@ -122,18 +111,7 @@ def connecter_utilisateur():
         if recuperationUtilisateur[1]:
             utilisateur = recuperationUtilisateur[0]
             if utilisateur.mot_de_passe == requete_json["mot_de_passe"]:
-                reponse_json = {}
-                reponse_json["pseudo"] = utilisateur.pseudo
-                iterateur_configuration = 0
-                while iterateur_configuration < len(utilisateur.identifiants_configurations_automate):
-                    identifiant_configuration = utilisateur.identifiants_configurations_automate[iterateur_configuration]
-                    resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([identifiant_configuration])
-                    if ( resultat_recherche_config[1]):
-                        nom_configuration = resultat_recherche_config[0][0].nom
-                        reponse_json.update({identifiant_configuration : nom_configuration})
-                    else:
-                        print(f"Une configuration de l'utilisateur {utilisateur.pseudo} n'a pas été trouvée")
-                    iterateur_configuration += 1
+                reponse_json = creer_informations_utilisateur(utilisateur)
                 print("L'utilisateur suivant s'est connecté: " + str(json.dumps(reponse_json)))
                 session["pseudo"] = utilisateur.pseudo
                 response = make_response(json.dumps(reponse_json))
@@ -169,3 +147,21 @@ def deconnecter_utilisateur():
 def creer_utilisateur(pseudo: str, mot_de_passe: str):
     print(request)
     pass
+
+def creer_informations_utilisateur(utilisateur: Utilisateur):
+    reponse_json = {}
+    reponse_json["pseudo"] = utilisateur.pseudo
+    liste_configurations = {}
+    iterateur_configuration = 0
+    while iterateur_configuration < len(utilisateur.identifiants_configurations_automate):
+        identifiant_configuration = utilisateur.identifiants_configurations_automate[iterateur_configuration]
+        resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants(
+            [identifiant_configuration])
+        if (resultat_recherche_config[1]):
+            nom_configuration = resultat_recherche_config[0][0].nom
+            liste_configurations.update({identifiant_configuration: nom_configuration})
+        else:
+            print(f"Une configuration de l'utilisateur {utilisateur.pseudo} n'a pas été trouvée")
+        iterateur_configuration += 1
+    reponse_json["configurations"] = liste_configurations
+    return reponse_json
