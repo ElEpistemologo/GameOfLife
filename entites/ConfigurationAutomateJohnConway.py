@@ -4,7 +4,7 @@ from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 
 class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
 
-    def __init__(self, identifiant: str, nom: str, parametres:List):
+    def __init__(self, identifiant: int, nom: str, parametres:List):
         self.identifiant = identifiant
         self.nom = nom
         self.largeur = parametres[0]

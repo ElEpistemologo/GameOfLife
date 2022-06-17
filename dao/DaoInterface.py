@@ -22,7 +22,11 @@ class DaoInterface(ABC):
         pass
 
     @abstractmethod
-    def ajouter_configuration_automate(self, parametres: List) -> bool:
+    def ajouter_configuration_automate(self, nom: str, parametres: List) -> [int, bool]:
+        pass
+
+    @abstractmethod
+    def modifier_configuration_automate(self, config: ConfigurationAutomateInterface) -> bool:
         pass
 
     @abstractmethod
