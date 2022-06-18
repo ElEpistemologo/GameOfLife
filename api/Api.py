@@ -40,19 +40,35 @@ def lancer_api(dao: DaoInterface):
 
 @api.route("/session")
 def retourner_session():
-
-    # si le client n'a pas de session, on initialise une session anonyme et on retourne les informations de base
+    # si le client n'a pas de session, on lui renvoit la session Anonyme et on initialise le cookie session
     if ( "pseudo" not in session ):
         print(f"Nouvelle session anonyme émanant de {request}")
-        session["pseudo"] = "anonyme"
-        reponse = make_response(json.dumps({"pseudo": "Anonyme"}))
-        return reponse, 200
+        recuperationUtilisateurAnonyme = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo("Anonyme")
+        if recuperationUtilisateurAnonyme[1]:
+            session["pseudo"] = "Anonyme"
+            utilisateurAnonyme = recuperationUtilisateurAnonyme[0]
+            reponse_json = creer_informations_utilisateur(utilisateurAnonyme)
+            print("L'utilisateur suivant s'est connecté à une session existante: " + str(json.dumps(reponse_json)))
+            response = make_response(json.dumps(reponse_json))
+            response.headers.set("Content-type", "application/json; charser=utf8")
+            return response, 200
+        else:
+            print(f"L'initialisation d'une nouvelle session anonyme a échouée {request}")
+            reponse = make_response()
+            return reponse, 400
     # si le client a une session anonyme, on retourne les informations de base
-    elif ( session["pseudo"] == "anonyme"):
-        pseudo = session["pseudo"]
-        print(f"Le client anonyme se reconnecte {request}; session={pseudo}")
-        reponse = make_response(json.dumps({"pseudo": "Anonyme"}))
-        return reponse, 200
+    elif ( session["pseudo"] == "Anonyme"):
+        recuperationUtilisateurAnonyme = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo("Anonyme")
+        if recuperationUtilisateurAnonyme[1]:
+            print(f"Le client anonyme se reconnecte {request};")
+            reponse_json = creer_informations_utilisateur(recuperationUtilisateurAnonyme[0])
+            response = make_response(json.dumps(reponse_json))
+            response.headers.set("Content-type", "application/json; charser=utf8")
+            return response, 200
+        else:
+            print(f"Le compte client anonyme n'a pas été trouvé {request}")
+            reponse = make_response()
+            return reponse, 400
     # si le client a une session utilisateur, lui renvoyer ses informations
     else:
         pseudo = session["pseudo"]
@@ -77,22 +93,76 @@ def retourner_session():
 # Accéder à une configuration par son identifiant
 @api.route("/configuration/obtenir/<identifiant>")
 def retourner_configuration(identifiant):
-    # TODO: vérifier si le client a une session utilisateur et si la configuration demandée lui appartient
-    resultat_requete_configuration = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([int(identifiant)])
-    if( resultat_requete_configuration[1] ):
-        configuration = resultat_requete_configuration[0][0]
-        print("Récupération de la configuration: "+str(configuration.parametres_configuration()))
-        response = make_response(json.dumps(configuration.parametres_configuration()))
-        response.headers.set("Content-type", "application/json; charser=utf8")
-        return response
+    if "pseudo" in session:
+        pseudo = session["pseudo"]
+        # si l'utilisateur a une session anonyme
+        if pseudo == "Anonyme":
+            # TODO: on pourra ajouter plus tard ici une liste de configuration publique
+            if int(identifiant) == 1:
+                resultat_requete_configuration = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants(
+                    [int(identifiant)])
+                if (resultat_requete_configuration[1]):
+                    configuration = resultat_requete_configuration[0][0]
+                    print("Récupération de la configuration: " + str(configuration.parametres_configuration())+f", provenant de {request} ")
+                    response = make_response(json.dumps(configuration.parametres_configuration()))
+                    response.headers.set("Content-type", "application/json; charser=utf8")
+                    return response, 200
+                else:
+                    print(f"la configuration {identifiant} recherché par {pseudo} n'a pas été trouvé, provenant de {request}")
+                    response = make_response(
+                        json.dumps({"message": "La configuration d'automate n'a pas été trouvé"}))
+                    response.headers.set("Content-type", "application/json; charser=utf8")
+                    return response, 400
+            else:
+                print(f"Un utilisateur anonyme a tenté d'obtenir la configuration privé d'identifiant: {identifiant}, provenant de {request}")
+                response = make_response(
+                    json.dumps({"message": "Impossible d'obtenir la configuration"}))
+                response.headers.set("Content-type", "application/json; charser=utf8")
+                return response, 400
+        else:
+            # si l'utilisateur n'est pas anonyme
+            resultat_recherche_utilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(session["pseudo"])
+            if ( resultat_recherche_utilisateur[1]):
+                utilisateur = resultat_recherche_utilisateur[0]
+                appartient = False
+                for config_id in utilisateur.identifiants_configurations_automate:
+                    if config_id == int(identifiant):
+                        appartient = True
+                # si la configuration lui appartient
+                if appartient:
+                    resultat_requete_configuration = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants(
+                        [int(identifiant)])
+                    configuration = resultat_requete_configuration[0][0]
+                    print("Récupération de la configuration: " +
+                          str(configuration.parametres_configuration()) + f" par l'utilisateur {pseudo}")
+                    response = make_response(json.dumps(configuration.parametres_configuration()))
+                    response.headers.set("Content-type", "application/json; charser=utf8")
+                    return response, 200
+                # si elle ne lui appartient pas
+                else:
+                    print(f"L'utlisateur avec {pseudo} a tenté d'obtenir une configuration privé qui ne lui appartient pas"
+                          f", provenant de {request}")
+                    response = make_response(
+                        json.dumps({"message": "Impossible d'obtenir la configuration"}))
+                    response.headers.set("Content-type", "application/json; charser=utf8")
+                    return response, 400
+            else:
+                print(f"Un utilisateur sans session a tenté d'obtenir une configuration privé"
+                      f", provenant de {request}")
+                response = make_response()
+                reponse.headers["Content-Length"]
+                return response, 400
     else:
-        response = make_response(json.dumps({"message":"La configuration d'automate demandée n'existe pas"}))
+        print( f"un client non authentifié a tenté d'accéder à une configuration, provenant de {request}" )
+        response = make_response()
         response.headers.set("Content-type", "application/json; charser=utf8")
         return response, 400
+
 
 # Modifier une configuration existante
 @api.route("/configuration/modifier", methods=['POST'])
 def enregistrer_configuration():
+    # TODO: empecher de modifier la configuration par défaut
     content_type = request.headers.get('Content-Type')
     print(f"Tentative de modification de {request.json}")
     if (content_type == 'application/json'):
@@ -193,9 +263,10 @@ def connecter_utilisateur():
 # Déconnexion utilisateur
 @api.route("/utilisateur/deconnecter")
 def deconnecter_utilisateur():
+    # TODO: à la déconnexion l'utilisateur doit recevoir les infos du compte anonyme
     pseudo = session["pseudo"]
     print(f"Déconnexion de l'utilisateur {pseudo}")
-    session["pseudo"] = "anonyme"
+    session["pseudo"] = "Anonyme"
     reponse = make_response()
     reponse.headers["Content-Length"] = 0
     return reponse, 200

@@ -19,10 +19,11 @@ class DaoTest(DaoInterface):
         config_automate_5 = ConfigurationAutomateJohnConway(5,"config_5", [30, 30])
         self.table_configurations = [config_automate_1, config_automate_2,config_automate_3,config_automate_4,config_automate_5]
 
-        utilisateur_1 = Utilisateur("Wluis", "pswd_Wluis", [4,2,3])
-        utilisateur_2 = Utilisateur("Setruan", "pswd_Setruan", [2,3])
-        utilisateur_3 = Utilisateur("Ooskour", "pswd_Ooskour", [4,5,3])
-        self.table_utilisateurs = [utilisateur_1, utilisateur_2, utilisateur_3]
+        utilisateur_1 = Utilisateur("Wluis", "pswd_Wluis", [1,4,2,3])
+        utilisateur_2 = Utilisateur("Setruan", "pswd_Setruan", [1,2,3])
+        utilisateur_3 = Utilisateur("Ooskour", "pswd_Ooskour", [1,4,5,3])
+        utilisateur_4 = Utilisateur("Anonyme", "pswd_Anonyme", [1])
+        self.table_utilisateurs = [utilisateur_1, utilisateur_2, utilisateur_3, utilisateur_4]
 
     def obtenir_utilisateur_par_pseudo(self, pseudo: str) -> [Utilisateur, bool]:
         for utilisateur in self.table_utilisateurs:
