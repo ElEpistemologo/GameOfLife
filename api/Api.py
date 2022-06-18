@@ -77,6 +77,7 @@ def retourner_session():
 # Accéder à une configuration par son identifiant
 @api.route("/configuration/obtenir/<identifiant>")
 def retourner_configuration(identifiant):
+    # TODO: vérifier si le client a une session utilisateur et si la configuration demandée lui appartient
     resultat_requete_configuration = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([int(identifiant)])
     if( resultat_requete_configuration[1] ):
         configuration = resultat_requete_configuration[0][0]
@@ -89,80 +90,65 @@ def retourner_configuration(identifiant):
         response.headers.set("Content-type", "application/json; charser=utf8")
         return response, 400
 
-# Enregistrer une configuration
-@api.route("/configuration/enregistrer", methods=['POST'])
+# Modifier une configuration existante
+@api.route("/configuration/modifier", methods=['POST'])
 def enregistrer_configuration():
     content_type = request.headers.get('Content-Type')
     print(f"Tentative de modification de {request.json}")
     if (content_type == 'application/json'):
         # vérification de l'authentification du client
-        resultat_recherche_utilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(session["pseudo"])
-        if ( resultat_recherche_utilisateur ):
-            utilisateur = resultat_recherche_utilisateur[0]
-            requete_json = request.json
-            try:
-                # si la configuration est déjà existante, on la modifie
-                resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([int(requete_json["identifiant"])])
-                if ( resultat_recherche_config[1] ):
-                    config_modification = resultat_recherche_config[0][0]
-                    resultat_modification = DAOSingleton.getDAO().modifier_configuration_automate(ConfigurationAutomateJohnConway(
-                        config_modification.identifiant,
-                        requete_json["nom"],
-                        [int(requete_json["largeur"]),
-                         int(requete_json["hauteur"])]
-                    ))
-                    # si la modification a réussie
-                    if ( resultat_modification ):
-                        print(f"La tentative de modification de la configuration {config_modification.identifiant} a réussie, provenant de: {request}")
-                        reponse = make_response()
-                        reponse.headers["Content-Length"] = 0
-                        return reponse, 200
-                    else:
-                        print(
-                            f"La tentative de modification de la configuration {config_modification.identifiant} a échoué, provenant de: {request}")
-                        response = make_response(
-                            json.dumps({"message": "Echec de la modification de la configuration"}))
-                        response.headers.set("Content-type", "application/json; charser=utf8")
-                        return response, 400
-                # si la configuration n'existe pas, on la créer
+        if "pseudo" in session:
+            resultat_recherche_utilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(session["pseudo"])
+            if ( resultat_recherche_utilisateur ):
+                utilisateur = resultat_recherche_utilisateur[0]
+                requete_json = request.json
+                #  vérification si la configuration qui est modifié appartient à l'utilisateur
+                appartient = False
+                for config_id in utilisateur.identifiants_configurations_automate:
+                    if config_id  == int(requete_json["identifiant"]):
+                        appartient = True
+                if ( appartient ):
+                    try:
+                        # si la configuration est déjà existante, on la modifie
+                        resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([int(requete_json["identifiant"])])
+                        if ( resultat_recherche_config[1] ):
+                            config_modification = resultat_recherche_config[0][0]
+                            resultat_modification = DAOSingleton.getDAO().modifier_configuration_automate(ConfigurationAutomateJohnConway(
+                                config_modification.identifiant,
+                                requete_json["nom"],
+                                [int(requete_json["largeur"]),
+                                 int(requete_json["hauteur"])]
+                            ))
+                            # si la modification a réussie
+                            if ( resultat_modification ):
+                                print(f"La tentative de modification de la configuration {config_modification.identifiant} a réussie, provenant de: {request}")
+                                reponse = make_response()
+                                reponse.headers["Content-Length"] = 0
+                                return reponse, 200
+                            else:
+                                print(
+                                    f"La tentative de modification de la configuration {config_modification.identifiant} a échoué, provenant de: {request}")
+                                response = make_response(
+                                    json.dumps({"message": "Echec de la modification de la configuration"}))
+                                response.headers.set("Content-type", "application/json; charser=utf8")
+                                return response, 400
+                    except Exception:
+                        print(f"La tentative de modification d'une configuration a échoué, provenant de: {request}")
+                        traceback.print_exc()
                 else:
-                    nom_nouvelle_config = requete_json["nom"]
-                    largeur_nouvelle_config = requete_json["largeur"]
-                    hauteur_nouvelle_config = requete_json["hauteur"]
-                    resultat_ajout_configuration = DAOSingleton.getDAO().ajouter_configuration_automate(
-                        nom_nouvelle_config, [largeur_nouvelle_config, hauteur_nouvelle_config])
-                    # si l'ajout est un succès, on récupère l'identifiant de la nouvelle
-                    # configuration et on l'ajoute dans la liste de configuration de l'utilisateur
-                    if ( resultat_ajout_configuration[1] ):
-                        print("La tentative de création d'une configuration a réussie, provenant de: " + str(
-                            request))
-                        identifiant_nouvelle_config = resultat_ajout_configuration[0]
-                        nouvelle_liste_identifiants_configuration_automate = utilisateur.identifiants_configurations_automate.copy()
-                        nouvelle_liste_identifiants_configuration_automate.append(identifiant_nouvelle_config)
-                        utilisateur.identifiants_configurations_automate = nouvelle_liste_identifiants_configuration_automate
-                    else:
-                        print("La tentative de création d'une configuration a échoué, provenant de: " + str(
-                        request) + ". L'ajout de la configuration dans la base de donnée a échoué")
-                        response = make_response(json.dumps({"message": "Echec de la modification de la configuration"}))
-                        response.headers.set("Content-type", "application/json; charser=utf8")
-                        return response, 400
-            except Exception:
-                print(f"La tentative de modification d'une configuration a échoué, provenant de: {request}")
-                traceback.print_exc()
-                response = make_response(json.dumps({"message": "Echec de la modification de la configuration"}))
-                response.headers.set("Content-type", "application/json; charser=utf8")
-                return response, 400
+                    print(f"La tentative de modification d'une configuration a échoué, provenant de: "
+                          f"{request}, la configuration ne lui appartient pas")
+            else:
+                print(f"La tentative de modification d'une configuration a échoué, provenant de: "
+                      f"{request}. L'utilisateur est introuvable")
         else:
-            print("La tentative de modification d'une configuration a échoué, provenant de: " + str(
-                request) + ". L'utilisateur est introuvable")
-            response = make_response(json.dumps({"message": "Echec de la modification de la configuration"}))
-            response.headers.set("Content-type", "application/json; charser=utf8")
-            return response, 400
+            print(f"La tentative de modification d'une configuration a échoué, provenant de: "
+                  f"{request}. Il n'y a pas d'information de session dans la requete")
     else:
-        print("La tentative de connexion: " + str(request) + " a échoué: L'utilisateur est introuvable")
-        response = make_response(json.dumps({"message": "Content-Type non supporté"}))
-        response.headers.set("Content-type", "application/json; charser=utf8")
-        return response, 400
+        print("La tentative de connexion: " + str(request) + " a échoué: Le body de la requete n'est pas un json")
+    response = make_response(json.dumps({"message": "La modification de la configuration a échouée"}))
+    response.headers.set("Content-type", "application/json; charser=utf8")
+    return response, 400
 
 # Supprimer une configuration
 @api.route("/configuration/supprimer")
