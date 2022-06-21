@@ -87,9 +87,40 @@ class TestUtilisateur(unittest.TestCase):
             utilisateur = Utilisateur("Wluis", liste_configuration)
 
     def test_constructeur_8(self):
-        liste_configuration = [1,2,3,4]
         utilisateur = Utilisateur("Wluis", "pswd")
         self.assertEqual(utilisateur.__str__(), "{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[]}")
+
+    def test_supprimer_configuration_1(self):
+        liste_configuration = [1, 2, 3, 4]
+        utilisateur = Utilisateur("Wluis", "pswd", liste_configuration)
+        resultat = utilisateur.supprimer_configuration(3)
+        self.assertEqual("{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[1,2,4]}", utilisateur.__str__())
+
+    def test_supprimer_configuration_2(self):
+        liste_configuration = [1, 2, 3, 4]
+        utilisateur = Utilisateur("Wluis", "pswd", liste_configuration)
+        resultat = utilisateur.supprimer_configuration(5)
+        self.assertEqual("{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[1,2,3,4]}", utilisateur.__str__())
+
+    def test_ajouter_nouvelle_configuration_1(self):
+        liste_configuration = [1, 2, 3]
+        utilisateur = Utilisateur("Wluis", "pswd", liste_configuration)
+        resultat = utilisateur.ajouter_nouvelle_configuration(4)
+        self.assertEqual("{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[1,2,3,4]}", utilisateur.__str__())
+
+    def test_ajouter_nouvelle_configuration_2(self):
+        with self.assertRaises(ValueError):
+            liste_configuration = [1, 2, 3]
+            utilisateur = Utilisateur("Wluis", "pswd", liste_configuration)
+            resultat = utilisateur.ajouter_nouvelle_configuration(3)
+            self.assertEqual("{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[1,2,3]}", utilisateur.__str__())
+
+    def test_ajouter_nouvelle_configuration_3(self):
+        with self.assertRaises(ValueError):
+            liste_configuration = [1, 2, 3]
+            utilisateur = Utilisateur("Wluis", "pswd", liste_configuration)
+            resultat = utilisateur.ajouter_nouvelle_configuration("a")
+            self.assertEqual("{\"Pseudo\":\"Wluis\",\"Identifiants de configurations\":[1,2,3]}", utilisateur.__str__())
 
 if __name__ == "__main__":
     unittest.main()

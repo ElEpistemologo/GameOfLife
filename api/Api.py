@@ -48,7 +48,7 @@ def retourner_session():
             session["pseudo"] = "Anonyme"
             utilisateurAnonyme = recuperationUtilisateurAnonyme[0]
             reponse_json = creer_informations_utilisateur(utilisateurAnonyme)
-            print("L'utilisateur suivant s'est connecté à une session existante: " + str(json.dumps(reponse_json)))
+            print("L'utilisateur suivant s'est connecté à une nouvelle session anonyme: " + str(json.dumps(reponse_json)))
             response = make_response(json.dumps(reponse_json))
             response.headers.set("Content-type", "application/json; charser=utf8")
             return response, 200
@@ -77,7 +77,7 @@ def retourner_session():
         if recuperationUtilisateur[1]:
             utilisateur = recuperationUtilisateur[0]
             reponse_json = creer_informations_utilisateur(utilisateur)
-            print("L'utilisateur suivant s'est connecté à une session existante: " + str(json.dumps(reponse_json)))
+            print("L'utilisateur suivant a récupéré ses informations: " + str(json.dumps(reponse_json)))
             response = make_response(json.dumps(reponse_json))
             response.headers.set("Content-type", "application/json; charser=utf8")
             return response
@@ -158,6 +158,52 @@ def retourner_configuration(identifiant):
         response.headers.set("Content-type", "application/json; charser=utf8")
         return response, 400
 
+# Créer une nouvelle configuration
+@api.route("/configuration/creer", methods=['POST'])
+def creer_configuration():
+    print(f"Tentative de création de configuration provenant de {request}")
+    content_type = request.headers.get('Content-Type')
+    if (content_type == 'application/json'):
+        if "pseudo" in session:
+            pseudo = session["pseudo"]
+            resultat_requete_utilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(pseudo)
+            # vérifie si le client a un compte utilisateur
+            if resultat_requete_utilisateur[1] or pseudo != "Anonyme":
+                config_json = request.json
+                try:
+                    resultat_ajout_nouvel_config = DAOSingleton.getDAO().\
+                        ajouter_configuration_automate(config_json["nom"],
+                                                       [int(config_json["largeur"]),
+                                                        int(config_json["hauteur"])])
+                    if resultat_ajout_nouvel_config[1]:
+                        identifiant_nouvelle_config = resultat_ajout_nouvel_config[0]
+                        utilisateur = resultat_requete_utilisateur[0]
+                        utilisateur.ajouter_nouvelle_configuration(identifiant_nouvelle_config)
+                        print(f"La tentative de création de configuration provenant de {request} et de l'utilisateur"
+                              f" {pseudo} a réussie")
+                        response = make_response()
+                        return response, 200
+                    else:
+                        print(f"La tentative de création de configuration provenant de {request} a échoué")
+                except ValueError:
+                    print(f"La tentative de création de configuration provenant de {request} et de l'utilisateur:"
+                          f" {pseudo} a échoué, les paramètres de la configurations sont invaludes: {config_json}")
+                    response = make_response(json.dumps({"message": "Les paramètres de la configuration sont invalides"}))
+                    response.headers.set("Content-type", "application/json; charser=utf8")
+                    return response, 400
+            else:
+                print(f"La tentative de création de configuration provenant de {request} a échoué, l'utilisateur est"
+                      f"introuvable ou il est anonyme ")
+        else:
+            print(f"La tentative de création de configuration provenant de {request} a échoué, le client n'a pas"
+                  f"de session initialisée")
+    else:
+        print(f"La tentative de création de configuration provenant de {request} a échoué, la requete n'est pas au"
+              f"bon format")
+    response = make_response(json.dumps({"message": "L'enregistrement de la configuration a échouée"}))
+    response.headers.set("Content-type", "application/json; charser=utf8")
+    return response, 400
+
 
 # Modifier une configuration existante
 @api.route("/configuration/modifier", methods=['POST'])
@@ -178,7 +224,7 @@ def modifier_configuration():
                         appartient = True
                 if appartient and int(requete_json["identifiant"]) != 1:
                     try:
-                        # si la configuration est déjà existante, on la modifie
+                        # si la configuration existe bien, on la modifie
                         resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([int(requete_json["identifiant"])])
                         if ( resultat_recherche_config[1] ):
                             config_modification = resultat_recherche_config[0][0]

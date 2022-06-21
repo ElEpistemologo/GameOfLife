@@ -1,4 +1,5 @@
 import json
+import traceback
 from typing import List
 
 class Utilisateur(object):
@@ -15,8 +16,27 @@ class Utilisateur(object):
         self.mot_de_passe = mot_de_passe
 
     def __str__(self):
-        jsonUtilisateur = {"Pseudo":self.pseudo, "Identifiants de configurations":self.identifiants_configurations_automate}
+        jsonUtilisateur = {"Pseudo":self.__pseudo, "Identifiants de configurations":self.__identifiants_configurations_automate}
         return json.dumps(jsonUtilisateur, separators=(',', ':'))
+
+    def ajouter_nouvelle_configuration(self, identifiant_nouvelle_configuration: int):
+        nouvelle_liste_config = self.identifiants_configurations_automate.copy()
+        nouvelle_liste_config.append(identifiant_nouvelle_configuration)
+        self.identifiants_configurations_automate = nouvelle_liste_config
+
+    def supprimer_configuration(self, identifiant_configuration_a_supprimer: int):
+        try:
+            nouvelle_liste_config = self.identifiants_configurations_automate
+            iterateur = 0
+            while iterateur < len(self.identifiants_configurations_automate):
+                if self.identifiants_configurations_automate[iterateur] == identifiant_configuration_a_supprimer:
+                    nouvelle_liste_config.pop(iterateur)
+                iterateur += 1
+            self.identifiants_configurations_automate = nouvelle_liste_config
+        except:
+            traceback.print_exc()
+            return False
+
 
     @property
     def mot_de_passe(self):
@@ -50,22 +70,30 @@ class Utilisateur(object):
             self.__pseudo = pseudo
 
     # identifiants_configurations_automate: liste de ConfigurationAutomate, de longueur [0,20]
-    # cette liste ne doit pas contenir de configurations d'identifiants égaux
+    # cette liste ne doit pas contenir de doublon
     @identifiants_configurations_automate.setter
     def identifiants_configurations_automate(self, identifiants_configurations_automate: List[int]):
+        valide = True
         if not isinstance(identifiants_configurations_automate, list):
+            valide = False
             raise ValueError("La liste de configurations d'automates est invalide")
         elif len(identifiants_configurations_automate) > 20:
+            valide = False
             raise ValueError("La liste de configurations est trop longue. Longueur maximum: 20")
         else:
             # vérifie si tous les éléments de la liste sont des entiers
             for config in identifiants_configurations_automate:
                 if not isinstance(config, int):
+                    valide = False
                     raise ValueError("La liste de configurations d'automates est invalide")
             # vérifie s'il n'y a pas de doublons dans les identifiants des configurations
             for i in range(len(identifiants_configurations_automate)-1):
                 identifiant_a_verifier = identifiants_configurations_automate[i]
                 for j in range(len(identifiants_configurations_automate))[i+1:]:
                     if identifiant_a_verifier == identifiants_configurations_automate[j]:
+                        valide = False
                         raise ValueError("Un utilisateur ne peut pas avoir deux configurations de même identifiant")
-            self.__identifiants_configurations_automate = identifiants_configurations_automate
+            if valide:
+                self.__identifiants_configurations_automate = identifiants_configurations_automate
+            else:
+                self.__identifiants_configurations_automate = None

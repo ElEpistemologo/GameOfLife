@@ -12,7 +12,7 @@ class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
         self.__type = "AJC"
 
     def json(self) -> str :
-        return json.dumps({"Identifiant":self.identifiant, "Nom":self.nom, "Largeur":self.largeur, "Hauteur": self.hauteur}, separators=(',', ':'))
+        return json.dumps({"Identifiant":self.__identifiant, "Nom":self.__nom, "Largeur":self.__largeur, "Hauteur": self.__hauteur}, separators=(',', ':'))
 
     # renvoie un dictionnaire contenant les paramètres de la configuration
     def parametres_configuration(self) -> Dict:
