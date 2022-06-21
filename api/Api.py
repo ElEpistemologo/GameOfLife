@@ -181,7 +181,8 @@ def creer_configuration():
                         utilisateur.ajouter_nouvelle_configuration(identifiant_nouvelle_config)
                         print(f"La tentative de création de configuration provenant de {request} et de l'utilisateur"
                               f" {pseudo} a réussie")
-                        response = make_response()
+                        response = make_response({"identifiant":identifiant_nouvelle_config})
+                        response.headers.set("Content-type", "application/json; charser=utf8")
                         return response, 200
                     else:
                         print(f"La tentative de création de configuration provenant de {request} a échoué")
