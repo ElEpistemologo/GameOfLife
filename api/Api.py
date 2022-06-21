@@ -161,15 +161,14 @@ def retourner_configuration(identifiant):
 
 # Modifier une configuration existante
 @api.route("/configuration/modifier", methods=['POST'])
-def enregistrer_configuration():
-    # TODO: empecher de modifier la configuration par défaut
+def modifier_configuration():
     content_type = request.headers.get('Content-Type')
     print(f"Tentative de modification de {request.json}")
     if (content_type == 'application/json'):
         # vérification de l'authentification du client
         if "pseudo" in session:
             resultat_recherche_utilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(session["pseudo"])
-            if ( resultat_recherche_utilisateur ):
+            if resultat_recherche_utilisateur:
                 utilisateur = resultat_recherche_utilisateur[0]
                 requete_json = request.json
                 #  vérification si la configuration qui est modifié appartient à l'utilisateur
@@ -177,7 +176,7 @@ def enregistrer_configuration():
                 for config_id in utilisateur.identifiants_configurations_automate:
                     if config_id  == int(requete_json["identifiant"]):
                         appartient = True
-                if ( appartient ):
+                if appartient and int(requete_json["identifiant"]) != 1:
                     try:
                         # si la configuration est déjà existante, on la modifie
                         resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([int(requete_json["identifiant"])])
