@@ -10,7 +10,7 @@ class DaoInterface(ABC):
         pass
 
     @abstractmethod
-    def ajouter_nouvel_utilisateur(self, pseudo: str, mot_de_passe: str) -> bool:
+    def ajouter_nouvel_utilisateur(self, utilisateur: Utilisateur) -> bool:
         pass
 
     @abstractmethod

@@ -262,21 +262,53 @@ def modifier_configuration():
                   f"{request}. Il n'y a pas d'information de session dans la requete")
     else:
         print("La tentative de connexion: " + str(request) + " a échoué: Le body de la requete n'est pas un json")
-    response = make_response(json.dumps({"message": "La modification de la configuration a échouée"}))
+    response = make_response(json.dumps({"message": "La modification de la configuration a échoué"}))
     response.headers.set("Content-type", "application/json; charser=utf8")
     return response, 400
 
 # Supprimer une configuration
-@api.route("/configuration/supprimer")
-def supprimer_configuration(identifiant:int):
-    print(request)
-    pass
+@api.route("/configuration/supprimer/<identifiant>")
+def supprimer_configuration(identifiant: int):
+    if "pseudo" in session:
+        pseudo = session["pseudo"]
+        print(f"Tentative de suppression de la configuration {identifiant} provenant de {request}, de l'utilisateur {pseudo}")
+        if pseudo != "Anonyme":
+            # vérifier si l'utilisateur existe
+            try:
+                resultat_requete_utilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(pseudo)
+                if resultat_requete_utilisateur[1]:
+                    utilisateur = resultat_requete_utilisateur[0]
+                    # vérifier si la configuration appartient à l'utilisateur
+                    if int(identifiant) in utilisateur.identifiants_configurations_automate and int(identifiant) != 1:
+                        DAOSingleton.getDAO().supprimer_configuration_automate_par_identifiant(int(identifiant))
+                        utilisateur.supprimer_configuration(int(identifiant))
+                        response = make_response()
+                        return response, 200
+                    else:
+                        print(
+                            f"La tentative de suppresion de la configuration {identifiant} provenant de {request} a échoué,"
+                            f"la configuration n'appartient pas à l'utilisateur {pseudo}")
+                else:
+                    print(f"La tentative de suppresion de la configuration {identifiant} provenant de {request} a échoué,"
+                          f"l'utilisateur {pseudo} est introuvable")
+            except:
+                print(f"La tentative de suppresion de la configuration {identifiant} provenant de {request} a échoué")
+                traceback.print_exc()
+        else:
+            print(f"La tentative de suppression de la configuration {identifiant} provenant de {request} a échoué,"
+                  f"le client a une session anonyme")
+    else:
+        print(f"La tentative de suppresion de la configuration {identifiant} provenant de {request} a échoué, "
+              f"le client n'a pas de session")
+    response = make_response(json.dumps({"message": "La suppresion de la configuration a échoué"}))
+    response.headers.set("Content-type", "application/json; charser=utf8")
+    return response, 400
 
 # Tentative de connexion utilisateur
 @api.route("/utilisateur/connecter", methods=['POST'])
 def connecter_utilisateur():
     content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
+    if content_type == 'application/json':
         requete_json = request.json
         print("Tentative de connexion: " + str(requete_json))
         recuperationUtilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(requete_json["pseudo"])
@@ -324,10 +356,45 @@ def deconnecter_utilisateur():
         return reponse, 400
 
 # Nouvel utilisateur
-@api.route("/utilisateur/creer")
-def creer_utilisateur(pseudo: str, mot_de_passe: str):
-    print(request)
-    pass
+@api.route("/utilisateur/creer", methods=['POST'])
+def creer_utilisateur():
+    content_type = request.headers.get('Content-Type')
+    if content_type == 'application/json':
+        if "pseudo" in session:
+            if session["pseudo"] == "Anonyme":
+                requete_json = request.json
+                try:
+                    nouvel_utilisateur = Utilisateur(requete_json["pseudo"], requete_json["mot_de_passe"], [1])
+                    resultat_creation_utilisateur = DAOSingleton.getDAO().ajouter_nouvel_utilisateur(nouvel_utilisateur)
+                    if resultat_creation_utilisateur:
+                        reponse_json = creer_informations_utilisateur(nouvel_utilisateur)
+                        session["pseudo"] = nouvel_utilisateur.pseudo
+                        response = make_response(json.dumps(reponse_json))
+                        response.headers.set("Content-type", "application/json; charser=utf8")
+                        return response, 200
+                    else:
+                        print(f"La tentative de créer un compte, provenant de {request} "
+                  f"a échoué, le compte au pseudo {nouvel_utilisateur.pseudo} existe déjà ")
+                        response = make_response(json.dumps({"message": "Ce pseudo est déjà utilisé"}))
+                        response.headers.set("Content-type", "application/json; charser=utf8")
+                        return response, 400
+                    # renvoyer les inforamtions du compte nouvellement créé
+                except:
+                    response = make_response(json.dumps({"message": "Création de compte impossible"}))
+                    response.headers.set("Content-type", "application/json; charser=utf8")
+                    return response, 400
+            else:
+                print(f"La tentative de créer un compte, provenant de {request} "
+                    f"a échoué, le client a déjà une session non-anonyme")
+        else:
+            print(f"La tentative de créer un compte, provenant de {request} "
+                  f"a échoué, le client n'a pas de session anonyme")
+    else:
+        print(f"La tentative de créer un compte, provenant de {request} "
+              f"a échoué, le corps de la requête n'est pas un json")
+    response = make_response(json.dumps({"message": "Création de compte impossible"}))
+    response.headers.set("Content-type", "application/json; charser=utf8")
+    return response, 400
 
 def creer_informations_utilisateur(utilisateur: Utilisateur):
     reponse_json = {}

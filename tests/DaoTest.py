@@ -31,9 +31,9 @@ class DaoTest(DaoInterface):
                 return [utilisateur, True]
         return [[], False]
 
-    def ajouter_nouvel_utilisateur(self, pseudo: str, mot_de_passe: str) -> bool:
-        if not self.obtenir_utilisateur_par_pseudo(pseudo)[1]:
-            self.table_utilisateurs.append(Utilisateur(pseudo, mot_de_passe, []))
+    def ajouter_nouvel_utilisateur(self, utilisateur:Utilisateur) -> bool:
+        if not self.obtenir_utilisateur_par_pseudo(utilisateur.pseudo)[1]:
+            self.table_utilisateurs.append(utilisateur)
             return True
         else:
             return False
@@ -103,41 +103,40 @@ class TestDaoTest(unittest.TestCase):
         resultats = dao_test.obtenir_utilisateur_par_pseudo("utilisateur_inexistant")
         self.assertEqual(resultats[1], False)
         self.assertEqual(resultats[0], [])
-        self.assertEqual(len(dao_test.table_utilisateurs), 3)
+        self.assertEqual(len(dao_test.table_utilisateurs), 4)
 
     def test_obtenir_utilisateur_par_pseudo_2(self):
         dao_test = DaoTest()
         resultats = dao_test.obtenir_utilisateur_par_pseudo("Wluis")
         self.assertEqual(resultats[1], True)
         self.assertEqual(resultats[0].pseudo, "Wluis")
-        self.assertEqual(len(dao_test.table_utilisateurs), 3)
 
     def test_ajouter_nouvel_utilisateur_1(self):
         dao_test = DaoTest()
-        resultat = dao_test.ajouter_nouvel_utilisateur("nouvel_utilisateur", "pswd")
+        resultat = dao_test.ajouter_nouvel_utilisateur(Utilisateur("nouvel_utilisateur", "pswd", []))
         self.assertEqual(resultat, True)
-        self.assertEqual(dao_test.table_utilisateurs[3].pseudo, "nouvel_utilisateur")
-        self.assertEqual(dao_test.table_utilisateurs[3].mot_de_passe, "pswd")
-        self.assertEqual(dao_test.table_utilisateurs[3].identifiants_configurations_automate, [])
-        self.assertEqual(len(dao_test.table_utilisateurs), 4)
+        self.assertEqual(dao_test.table_utilisateurs[4].pseudo, "nouvel_utilisateur")
+        self.assertEqual(dao_test.table_utilisateurs[4].mot_de_passe, "pswd")
+        self.assertEqual(dao_test.table_utilisateurs[4].identifiants_configurations_automate, [])
+        self.assertEqual(len(dao_test.table_utilisateurs), 5)
 
     def test_ajouter_nouvel_utilisateur_2(self):
         dao_test = DaoTest()
-        resultat = dao_test.ajouter_nouvel_utilisateur("Ooskour", "pswdtest")
+        resultat = dao_test.ajouter_nouvel_utilisateur(Utilisateur("Ooskour", "pswdtest", []))
         self.assertEqual(resultat, False)
-        self.assertEqual(len(dao_test.table_utilisateurs), 3)
+        self.assertEqual(len(dao_test.table_utilisateurs), 4)
 
     def test_supprimer_nouvel_utilisateur_par_pseudo_1(self):
         dao_test = DaoTest()
         resultat = dao_test.supprimer_nouvel_utilisateur_par_pseudo("Ooskour")
         self.assertEqual(resultat, True)
-        self.assertEqual(len(dao_test.table_utilisateurs), 2)
+        self.assertEqual(len(dao_test.table_utilisateurs), 3)
 
     def test_supprimer_nouvel_utilisateur_par_pseudo_2(self):
         dao_test = DaoTest()
         resultat = dao_test.supprimer_nouvel_utilisateur_par_pseudo("Utilisateur_non_existant")
         self.assertEqual(resultat, False)
-        self.assertEqual(len(dao_test.table_utilisateurs), 3)
+        self.assertEqual(len(dao_test.table_utilisateurs), 4)
 
     def test_ajouter_configuration_automate_1(self):
         dao_test = DaoTest()
@@ -169,15 +168,16 @@ class TestDaoTest(unittest.TestCase):
 
     def test_supprimer_configuration_automate_par_identifiant_1(self):
         dao_test = DaoTest()
-        result = dao_test.supprimer_configuration_automate_par_identifiant(2)
+        resultat_suppresion = dao_test.supprimer_configuration_automate_par_identifiant(2)
+        resultat_request_config = dao_test.obtenir_configuration_automate_par_identifiants([2])
         self.assertEqual(len(dao_test.table_configurations), 4)
-        self.assertEqual(dao_test.obtenir_configuration_automate_par_identifiants([2])[0], [])
-        self.assertEqual(dao_test.obtenir_configuration_automate_par_identifiants([2])[1], False)
-        self.assertEqual(result, True)
+        self.assertEqual(True, resultat_suppresion)
+        self.assertEqual(False, resultat_request_config[1])
+        self.assertEqual([], resultat_request_config[0])
 
     def test_supprimer_configuration_automate_par_identifiant_2(self):
         dao_test = DaoTest()
-        result = dao_test.supprimer_configuration_automate_par_identifiant(0)
+        result = dao_test.supprimer_configuration_automate_par_identifiant(6)
         self.assertEqual(len(dao_test.table_configurations), 5)
         self.assertEqual(result, False)
 
