@@ -150,7 +150,7 @@ def retourner_configuration(identifiant):
                 print(f"Un utilisateur sans session a tenté d'obtenir une configuration privé"
                       f", provenant de {request}")
                 response = make_response()
-                reponse.headers["Content-Length"]
+                response.headers["Content-Length"]
                 return response, 400
     else:
         print( f"un client non authentifié a tenté d'accéder à une configuration, provenant de {request}" )
