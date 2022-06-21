@@ -262,14 +262,19 @@ def connecter_utilisateur():
 # Déconnexion utilisateur
 @api.route("/utilisateur/deconnecter")
 def deconnecter_utilisateur():
-    # TODO: à la déconnexion l'utilisateur doit recevoir les infos du compte anonyme
-    pseudo = session["pseudo"]
-    print(f"Déconnexion de l'utilisateur {pseudo}")
-    session["pseudo"] = "Anonyme"
-    reponse = make_response()
-    reponse.headers["Content-Length"] = 0
-    return reponse, 200
-    pass
+    recuperationUtilisateurAnonyme = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo("Anonyme")
+    if recuperationUtilisateurAnonyme[1]:
+        session["pseudo"] = "Anonyme"
+        utilisateurAnonyme = recuperationUtilisateurAnonyme[0]
+        reponse_json = creer_informations_utilisateur(utilisateurAnonyme)
+        print("L'utilisateur suivant s'est connecté à une session existante: " + str(json.dumps(reponse_json)))
+        response = make_response(json.dumps(reponse_json))
+        response.headers.set("Content-type", "application/json; charser=utf8")
+        return response, 200
+    else:
+        print(f"L'initialisation d'une nouvelle session anonyme a échouée {request}")
+        reponse = make_response()
+        return reponse, 400
 
 # Nouvel utilisateur
 @api.route("/utilisateur/creer")
