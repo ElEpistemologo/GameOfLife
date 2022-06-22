@@ -16,7 +16,7 @@ class Utilisateur(object):
         self.mot_de_passe = mot_de_passe
 
     def __str__(self):
-        jsonUtilisateur = {"Pseudo":self.__pseudo, "Identifiants de configurations":self.__identifiants_configurations_automate}
+        jsonUtilisateur = {"Pseudo":self.pseudo, "Identifiants de configurations":self.identifiants_configurations_automate}
         return json.dumps(jsonUtilisateur, separators=(',', ':'))
 
     def ajouter_nouvelle_configuration(self, identifiant_nouvelle_configuration: int):

@@ -12,16 +12,34 @@ from Utilisateur import Utilisateur
 class DaoTest(DaoInterface):
 
     def __init__(self):
-        config_automate_1 = ConfigurationAutomateJohnConway(1,"Configuration par défaut", [5, 5])
-        config_automate_2 = ConfigurationAutomateJohnConway(2,"config_2", [4, 8])
-        config_automate_3 = ConfigurationAutomateJohnConway(3,"config_3", [2, 12])
-        config_automate_4 = ConfigurationAutomateJohnConway(4,"config_4", [10, 20])
-        config_automate_5 = ConfigurationAutomateJohnConway(5,"config_5", [30, 30])
-        self.table_configurations = [config_automate_1, config_automate_2,config_automate_3,config_automate_4,config_automate_5]
+        config_automate_1 = ConfigurationAutomateJohnConway(
+            1,"Configuration par défaut", [5, 5, [[True, False, False, True, True],
+                                                  [True, True, True, True, True],
+                                                  [False, False, True, False, True],
+                                                  [True, True, False, False, True],
+                                                  [False, False, True, True, True]]])
+        config_automate_2 = ConfigurationAutomateJohnConway(
+            2,"config_2", [4, 8, [[True, False, True, True, True, False, False, True],
+                                [False, True, False, False, True, True, True, True],
+                                [True, False, False, False, True, True, True, True],
+                                [False, False, True, True, True, False, True, False]]])
+        config_automate_3 = ConfigurationAutomateJohnConway(
+            3,"config_3", [2, 12, [[True, False, True, True, True, False, False, True, True, False, True, True],
+                                [False, True, False, False, True, True, True, True, True, False, True, True]]])
+        config_automate_4 = ConfigurationAutomateJohnConway(
+            4,"config_4", [3, 5, [[True, False, False, True, True],
+                                [True, True, True, True, True],
+                                [True, True, True, True, True]]])
+        config_automate_5 = ConfigurationAutomateJohnConway(
+            5,"config_5", [4, 3, [[True, False, False],
+                                [True, False, False],
+                                [False, True, False],
+                                [True, False, True]]])
+        self.table_configurations = [config_automate_1, config_automate_2, config_automate_3, config_automate_4, config_automate_5]
 
-        utilisateur_1 = Utilisateur("Wluis", "pswd_Wluis", [1,4,2,3])
-        utilisateur_2 = Utilisateur("Setruan", "pswd_Setruan", [1,2,3])
-        utilisateur_3 = Utilisateur("Ooskour", "pswd_Ooskour", [1,4,5,3])
+        utilisateur_1 = Utilisateur("Wluis", "pswd_Wluis", [1, 4, 2, 3])
+        utilisateur_2 = Utilisateur("Setruan", "pswd_Setruan", [1, 2, 3])
+        utilisateur_3 = Utilisateur("Ooskour", "pswd_Ooskour", [1, 4, 5, 3])
         utilisateur_4 = Utilisateur("Anonyme", "pswd_Anonyme", [1])
         self.table_utilisateurs = [utilisateur_1, utilisateur_2, utilisateur_3, utilisateur_4]
 
@@ -57,12 +75,13 @@ class DaoTest(DaoInterface):
             return [list_config, True]
 
 
-    def ajouter_configuration_automate(self, nom: str, config: List[int]) -> [int, bool]:
+    def ajouter_configuration_automate(self, nom: str, config: List) -> [int, bool]:
         nouvel_identifiant = self.table_configurations[-1].identifiant +1
         try:
             nouvel_automate = ConfigurationAutomateJohnConway(nouvel_identifiant, nom, config)
             self.table_configurations.append(nouvel_automate)
-        except Exception:
+        except Exception as e:
+            raise e
             return [None, False]
         return [nouvel_identifiant, True]
 
@@ -90,13 +109,18 @@ class TestDaoTest(unittest.TestCase):
     def test_modifier_configuration_automate_1(self):
         dao_test = DaoTest()
         nombre_config_avant_modif = len(dao_test.table_configurations)
-        resultat_modif = dao_test.modifier_configuration_automate(ConfigurationAutomateJohnConway(2,"config_2_modif", [4, 6]))
+        resultat_modif = dao_test.modifier_configuration_automate(
+            ConfigurationAutomateJohnConway(2,"config_2_modif", [4, 6, [[False, False, True, False, True, False],
+                                                                        [True, False, True, False, True, False],
+                                                                        [True, False, True, False, True, False],
+                                                                        [True, False, True, False, True, False],]]))
         self.assertEqual(resultat_modif, True)
         resultat_cherche = dao_test.obtenir_configuration_automate_par_identifiants([2])
         self.assertEqual(resultat_cherche[1], True)
         self.assertEqual(1, len(resultat_cherche[0]))
         self.assertEqual(resultat_cherche[0][0].nom, "config_2_modif")
         self.assertEqual(nombre_config_avant_modif, len(dao_test.table_configurations))
+        self.assertEqual(False, resultat_cherche[0][0].etat_initial[0][0])
 
     def test_obtenir_utilisateur_par_pseudo_1(self):
         dao_test = DaoTest()
@@ -140,31 +164,28 @@ class TestDaoTest(unittest.TestCase):
 
     def test_ajouter_configuration_automate_1(self):
         dao_test = DaoTest()
-        resultat = dao_test.ajouter_configuration_automate("nom_config", [10, 10])
+        resultat = dao_test.ajouter_configuration_automate("nom_config", [2, 2, [[True, True], [False, True]]])
         self.assertEqual(resultat[1], True)
         self.assertEqual(len(dao_test.table_configurations), 6)
 
     def test_ajouter_configuration_automate_2(self):
         dao_test = DaoTest()
-        resultat1 = dao_test.ajouter_configuration_automate(0, [10, 10])
-        resultat2 = dao_test.ajouter_configuration_automate("nom_config", [-10, 10])
-        resultat3 = dao_test.ajouter_configuration_automate("nom_config", [10, -10])
-        resultat4 = dao_test.ajouter_configuration_automate("nom_config", [101, 10])
-        resultat5 = dao_test.ajouter_configuration_automate("nom_config", [10, 101])
-        self.assertEqual(resultat1[1], False)
-        self.assertEqual(resultat1[1], False)
-        self.assertEqual(resultat1[1], False)
-        self.assertEqual(resultat1[1], False)
-        self.assertEqual(resultat1[1], False)
+        with self.assertRaises(ValueError):
+            resultat1 = dao_test.ajouter_configuration_automate(0, [10, 10, [[]]])
+            self.assertEqual(resultat1[1], False)
 
     def test_obtenir_configuration_automate_par_identifiants_1(self):
         dao_test = DaoTest()
         config = dao_test.obtenir_configuration_automate_par_identifiants([2])[0]
-        self.assertEqual(config[0].json(), "{\"Identifiant\":2,\"Nom\":\"config_2\",\"Largeur\":4,\"Hauteur\":8}")
+        self.assertEqual("{\"Identifiant\":2,\"Nom\":\"config_2\",\"Largeur\":4,\"Hauteur\":8,"
+                                           "\"Etat_initial\":[[true,false,true,true,true,false,false,true],"
+                                            "[false,true,false,false,true,true,true,true],"
+                                            "[true,false,false,false,true,true,true,true],"
+                                            "[false,false,true,true,true,false,true,false]]}", config[0].json())
 
     def test_obtenir_configuration_automate_par_identifiants_2(self):
         dao_test = DaoTest()
-        self.assertEqual(dao_test.obtenir_configuration_automate_par_identifiants([6])[0], [])
+        self.assertEqual( [], dao_test.obtenir_configuration_automate_par_identifiants([6])[0])
 
     def test_supprimer_configuration_automate_par_identifiant_1(self):
         dao_test = DaoTest()

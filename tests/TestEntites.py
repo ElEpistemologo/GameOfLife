@@ -4,51 +4,80 @@ config.configurer_pythonpath()
 
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 from Utilisateur import Utilisateur
-import GameOfLifeException
 
 class TestConfigurationAutomateJohnConway(unittest.TestCase):
 
-    def test_constructeur_1(self):
+    def test_constructeur(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomateJohnConway(1, "nom", [-1, 5])
-
-    def test_constructeur_2(self):
+            automate = ConfigurationAutomateJohnConway(1, "nom", [-1, 3, [[True, False, True],
+                                                                          [True, False, True],
+                                                                          [True, False, True]]])
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomateJohnConway(1, "nom", [5, -1])
+            automate = ConfigurationAutomateJohnConway(1, "nom", [-1, 3])
 
-    def test_constructeur_3(self):
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomateJohnConway(1, "nom", [101, 5])
-
-    def test_constructeur_4(self):
+            automate = ConfigurationAutomateJohnConway(1, "nom", [0, 3, [[True, False, True],
+                                                                          [True, False, True],
+                                                                          [True, False, True]]])
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomateJohnConway(1, "nom", [5, 101])
-
-    def test_constructeur_5(self):
+            automate = ConfigurationAutomateJohnConway(1, "nom", [3, -1, [[True, False, True],
+                                                                  [True, False, True],
+                                                                  [True, False, True]]])
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomateJohnConway(1, 0, [5, 5])
-
-    def test_constructeur_6(self):
+            automate = ConfigurationAutomateJohnConway(1, "nom", [4, 3, [[True, False, True],
+                                                                  [True, False, True],
+                                                                  [True, False, True]]])
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomateJohnConway(40, "nom", [5, 5])
-
-    def test_constructeur_7(self):
+            automate = ConfigurationAutomateJohnConway(1, "nom", [3, 4, [[True, False, True],
+                                                                  [True, False, True],
+                                                                  [True, False, True]]])
         with self.assertRaises(ValueError):
-            automate = ConfigurationAutomateJohnConway(-1, "nom", [5, 5])
+            automate = ConfigurationAutomateJohnConway(1, 0, [3, 3, [[True, False, True],
+                                                                  [True, False, True],
+                                                                  [True, False, True]]])
+        with self.assertRaises(ValueError):
+            automate = ConfigurationAutomateJohnConway(1, "nom", [3, 3, [[True, "a", True],
+                                                                  [True, False, True],
+                                                                  [True, False, True]]])
+        with self.assertRaises(ValueError):
+            automate = ConfigurationAutomateJohnConway(-1, "nom", [5, 5, [[True, False, True],
+                                                                  [True, False, True],
+                                                                  [True, False, True]]])
+        with self.assertRaises(ValueError):
+            automate = ConfigurationAutomateJohnConway(-1, "nom", [3, 3, [[True, False, True],
+                                                                              [],
+                                                                              [True, False, True]]])
 
-    def test_constructeur_8(self):
-        config_automate = ConfigurationAutomateJohnConway(2, "automateTest", [5, 6])
-        jsonAttendu = "{\"Identifiant\":2,\"Nom\":\"automateTest\",\"Largeur\":5,\"Hauteur\":6}"
-        self.assertEqual(config_automate.json(), jsonAttendu)
-
-    def test_constructeur_9(self):
-        config_automate = ConfigurationAutomateJohnConway(2, "automateTest", [5, 6])
+        config_automate = ConfigurationAutomateJohnConway(2, "automateTest", [1, 1, [[True]]])
         self.assertIsInstance(config_automate, ConfigurationAutomateJohnConway)
 
-    def test_dictionnaireParametresConfiguration_1(self):
-        config_automate = ConfigurationAutomateJohnConway(2, "automateTest", [5, 6])
+    def test_json(self):
+        config_automate = ConfigurationAutomateJohnConway(2, "automateTest", [5, 6, [[True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True]]])
+        jsonAttendu = "{\"Identifiant\":2,\"Nom\":\"automateTest\",\"Largeur\":5,\"Hauteur\":6,\"Etat_initial\":"\
+                      "[[true,false,true,true,false,true],"\
+                      "[true,false,true,true,false,true],"\
+                      "[true,false,true,true,false,true],"\
+                      "[true,false,true,true,false,true],"\
+                      "[true,false,true,true,false,true]]}"
+        self.assertEqual(jsonAttendu, config_automate.json())
+
+    def test_dictionnaireParametresConfiguration(self):
+        config_automate = ConfigurationAutomateJohnConway(2, "automateTest", [5, 6, [[True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True]]])
         self.assertEqual(config_automate.parametres_configuration(),\
-                         {"Identifiant":2, "Nom": "automateTest", "Largeur":5, "Hauteur":6})
+                         {"Identifiant":2, "Nom": "automateTest", "Largeur":5, "Hauteur":6, "Etat_initial":
+                                                                  [[True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True],
+                                                                  [True, False, True, True, False, True]]})
 
 class TestUtilisateur(unittest.TestCase):
 

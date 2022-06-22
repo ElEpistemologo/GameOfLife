@@ -174,7 +174,8 @@ def creer_configuration():
                     resultat_ajout_nouvel_config = DAOSingleton.getDAO().\
                         ajouter_configuration_automate(config_json["nom"],
                                                        [int(config_json["largeur"]),
-                                                        int(config_json["hauteur"])])
+                                                        int(config_json["hauteur"]),
+                                                        config_json["etat_initial"]])
                     if resultat_ajout_nouvel_config[1]:
                         identifiant_nouvelle_config = resultat_ajout_nouvel_config[0]
                         utilisateur = resultat_requete_utilisateur[0]
@@ -233,7 +234,8 @@ def modifier_configuration():
                                 config_modification.identifiant,
                                 requete_json["nom"],
                                 [int(requete_json["largeur"]),
-                                 int(requete_json["hauteur"])]
+                                 int(requete_json["hauteur"]),
+                                 requete_json["etat_initial"]]
                             ))
                             # si la modification a réussie
                             if ( resultat_modification ):
