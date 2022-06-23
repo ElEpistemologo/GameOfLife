@@ -5,7 +5,7 @@ CONTROLEUR_PATH = "controleur"
 MODELE_PATH = "modele"
 ENTITES_PATH = "entites"
 DAO_PATH = "dao"
-API_PATH = "api"
+API_PATH = "services"
 
 def recuperer_cle_secrete():
     FICHIER_CLE_SECRETE = "Fichier_cle_secrete"

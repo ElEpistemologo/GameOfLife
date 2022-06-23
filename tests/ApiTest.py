@@ -1,9 +1,6 @@
-import unittest
-
 import config
 config.configurer_pythonpath()
-import Api
 from DaoTest import DaoTest
+import Api
 
-daoTest = DaoTest()
-Api.lancer_api(daoTest)
+Api.lancer_api(DaoTest())
