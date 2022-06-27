@@ -58,7 +58,7 @@ class AutomateJohnConway(AutomateInterface):
         if j + 1 < hauteur:
             if self.automate[i][j + 1]:
                 somme_cellule_vivante += 1
-        if i + 1 < hauteur:
+        if i + 1 < largeur:
             if self.automate[i + 1][j]:
                 somme_cellule_vivante += 1
 

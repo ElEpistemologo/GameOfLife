@@ -4,8 +4,6 @@ import time
 from AutomateJohnConway import AutomateJohnConway
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 
-
-
 class AutomateThread (Thread):
 
     def __init__(self, sid, etat_initial: ConfigurationAutomateInterface, socketio):
@@ -16,6 +14,7 @@ class AutomateThread (Thread):
         self.automate = AutomateJohnConway(etat_initial)
         self.generation_temps = 1.0
         self.socketio = socketio
+        self.stop = False
 
     @property
     def sid(self):
@@ -28,6 +27,18 @@ class AutomateThread (Thread):
     @property
     def socketio(self):
         return self.__socketio
+
+    @property
+    def pause(self):
+        return self.__pause
+
+    @property
+    def stop(self):
+        return self.__stop
+
+    @property
+    def generation_temps(self):
+        return self.__generation_temps
 
     @sid.setter
     def sid(self, sid):
@@ -47,30 +58,48 @@ class AutomateThread (Thread):
     def socketio(self, socketio):
         self.__socketio = socketio
 
+    @pause.setter
+    def pause(self, pause):
+        self.__pause = pause
+
+    @stop.setter
+    def stop(self, stop):
+        self.__stop = stop
+
+    @generation_temps.setter
+    def generation_temps(self, generation_temps):
+        self.__generation_temps = generation_temps
+
     def run(self):
-        while(not self.pause):
-            self.automate.generation_suivante()
-            self.socketio.emit("maj_automate", self.automate.__str__(), room=self.sid)
-            time.sleep(self.generation_temps)
-
-
-    def attendre(self):
-        pass
+        while not self.stop:
+            while not self.pause and not self.stop:
+                self.automate.generation_suivante()
+                self.socketio.emit("maj_automate", self.automate.__str__(), room=self.sid)
+                time.sleep(self.generation_temps)
+        print(f"Client {self.sid}, automate terminé")
 
     def lancer_automate(self):
         self.start()
+        print(f"Client {self.sid}, ordre: Lancer automate")
 
     def pause_automate(self):
-        print("L'automate a été mis en pause")
         self.pause = not self.pause
+        print(f"Client {self.sid}, ordre: Pause")
+
+    def stop_automate(self):
+        self.stop = True
+        self.pause = False
+        print(f"Client {self.sid}, ordre: Stop")
 
     def etape_suivante(self):
-        print("L'automate a été avancé d'une génération")
+        print(f"Client {self.sid}, ordre: Etape suivante")
+        self.automate.generation_suivante()
+        self.socketio.emit("maj_automate", self.automate.__str__(), room=self.sid)
 
     def augmenter_vitesse(self):
         self.generation_temps /= 4
-        print("La vitesse des génération a augmenté")
+        print(f"Client {self.sid}, ordre: Augmenter vitesse")
 
     def diminuer_vitesse(self):
         self.generation_temps *= 4
-        print("La vitesse des génération a diminué")
+        print(f"Client {self.sid}, ordre: Diminuer vitesse")

@@ -39,8 +39,13 @@ def pause_automate():
     liste_thread_automate[sid].pause_automate()
 
 @socketio.on("etape_suivante")
-def etape_suivante():
+def etape_suivante(message):
     sid = request.sid
+    dict_message = ast.literal_eval(str(message))
+    configuration_automate = ConfigurationAutomateJohnConway(-1, "temp", [int(dict_message["largeur"]),
+                                                                          int(dict_message["hauteur"]),
+                                                                          dict_message["automate"]])
+    liste_thread_automate[sid] = AutomateThread(sid, configuration_automate, socketio)
     liste_thread_automate[sid].etape_suivante()
 
 @socketio.on("augmenter_vitesse")
@@ -52,6 +57,12 @@ def augmenter_vitesse():
 def diminuer_vitesse():
     sid = request.sid
     liste_thread_automate[sid].diminuer_vitesse()
+
+@socketio.on("stop_automate")
+def stop_automate():
+    sid = request.sid
+    if sid in liste_thread_automate:
+        liste_thread_automate[sid].stop_automate()
 
 if __name__ == "__main__":
     socketio.run(serveur_web_socket, "127.0.0.1", "5001", debug=True, use_reloader=True)
