@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import json
 import traceback
 from typing import List

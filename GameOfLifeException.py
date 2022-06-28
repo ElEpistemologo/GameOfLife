@@ -1,4 +1,4 @@
-
+#!/usr/bin/python
 
 # Exception relevant les erreurs lors de l'initialisation ou du calul de l'automate cellulaire
 class GameOfLifeException(Exception):

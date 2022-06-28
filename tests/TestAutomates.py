@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import unittest
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 from AutomateJohnConway import AutomateJohnConway

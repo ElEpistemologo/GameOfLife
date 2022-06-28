@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import json
 from typing import List, Dict
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface

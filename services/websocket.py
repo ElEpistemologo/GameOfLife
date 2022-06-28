@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 import ast

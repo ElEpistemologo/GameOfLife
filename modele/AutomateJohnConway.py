@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import copy
 import json
 from typing import List
