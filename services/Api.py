@@ -34,9 +34,16 @@ class DAOSingleton(object):
     def getDAO() -> DaoInterface:
         return DAOSingleton.dao
 
-def lancer_api(dao: DaoInterface):
+def lancer_api():
+    # daoSingleton = DAOSingleton()
+    # daoSingleton.setDAO( DAO avec SQL )
+    # api.config.update(ENV="development", DEBUG=True)
+    # api.run()
+    pass
+
+def lancer_api_test():
     daoSingleton = DAOSingleton()
-    daoSingleton.setDAO(dao)
+    daoSingleton.setDAO(DaoTest())
     api.config.update(ENV="development", DEBUG=True)
     api.run()
 
@@ -417,6 +424,3 @@ def creer_informations_utilisateur(utilisateur: Utilisateur):
         iterateur_configuration += 1
     reponse_json["configurations"] = liste_configurations
     return reponse_json
-
-if __name__ == "__main__":
-    lancer_api(DaoTest())
