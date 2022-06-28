@@ -3,5 +3,4 @@ requires = ["setuptools",
     "wheel",
     "flask",
     "flask_socketio",
-    "flask_cors",
-    "unittest"]
+    "flask_cors"]
