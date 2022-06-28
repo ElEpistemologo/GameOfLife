@@ -1,11 +1,13 @@
 [build-system]
-requires = ["setuptools",
-    "wheel",
+requires = ["setuptools","wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+packages = ["dao", "modele", "entities", "services"]
+
+[project]
+dependencies = [
     "flask",
     "flask_socketio",
     "flask_cors"]
 
-packages = ["dao",
-    "entites",
-    "modele",
-    "services"]
