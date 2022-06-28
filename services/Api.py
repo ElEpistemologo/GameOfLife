@@ -1,14 +1,15 @@
 #!/usr/bin/python
 
+from flask import Flask, make_response, request, session
+from flask_cors import CORS
 import json
 import traceback
 import config
 config.configurer_pythonpath()
 from DaoTest import DaoTest
-from flask import Flask, make_response, request, session
+
 from DaoInterface import DaoInterface
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
-from flask_cors import CORS
 from Utilisateur import Utilisateur
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 
