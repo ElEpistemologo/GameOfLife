@@ -4,3 +4,8 @@ requires = ["setuptools",
     "flask",
     "flask_socketio",
     "flask_cors"]
+
+packages = ["dao",
+    "entites",
+    "modele",
+    "services"]

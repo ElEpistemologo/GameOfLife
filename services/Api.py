@@ -2,15 +2,15 @@
 
 import json
 import traceback
-
+import config
+config.configurer_pythonpath()
+from DaoTest import DaoTest
 from flask import Flask, make_response, request, session
 from DaoInterface import DaoInterface
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from flask_cors import CORS
 from Utilisateur import Utilisateur
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
-
-import config
 
 api = Flask(__name__)
 api.secret_key = config.recuperer_cle_secrete()
@@ -417,3 +417,6 @@ def creer_informations_utilisateur(utilisateur: Utilisateur):
         iterateur_configuration += 1
     reponse_json["configurations"] = liste_configurations
     return reponse_json
+
+if __name__ == "__main__":
+    lancer_api(DaoTest())
