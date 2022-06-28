@@ -6,6 +6,8 @@ build-backend = "setuptools.build_meta"
 packages = ["dao", "modele", "entities", "services"]
 
 [project]
+name = "gameoflife_serveur"
+version = "0.0.1"
 dependencies = [
     "flask",
     "flask_socketio",
