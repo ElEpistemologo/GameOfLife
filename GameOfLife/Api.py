@@ -426,4 +426,5 @@ def creer_informations_utilisateur(utilisateur: Utilisateur):
     return reponse_json
 
 if __name__ == "__main__":
-    lancer_api_test()
+    api = lancer_api_test()
+    api.run()
