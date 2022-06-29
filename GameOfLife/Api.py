@@ -5,8 +5,10 @@ from flask_cors import CORS
 import json
 import traceback
 
-from DaoTest import DaoTest
+import config
+config.configurer_python_path()
 
+from DaoTest import DaoTest
 from DaoInterface import DaoInterface
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from Utilisateur import Utilisateur
@@ -41,7 +43,6 @@ def lancer_api():
 def lancer_api_test():
     daoSingleton = DAOSingleton()
     daoSingleton.setDAO(DaoTest())
-    import config
     api.secret_key = config.recuperer_cle_secrete()
     cors = CORS(api, origins=["*"], supports_credentials=True)
     api.config.update(ENV="development", DEBUG=True)

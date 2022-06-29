@@ -4,6 +4,8 @@ from flask import Flask, request
 from flask_socketio import SocketIO, emit
 import ast
 
+import config
+config.configurer_python_path()
 from AutomateThread import AutomateThread
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 

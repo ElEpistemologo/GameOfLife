@@ -3,11 +3,10 @@
 import sys
 import os
 
-MODELE_PATH = "modele"
-ENTITES_PATH = "entites"
-TESTS_PATH = "tests"
-DAO_PATH = "dao"
-API_PATH = "services"
+MODELE_PATH = "/src/modele"
+ENTITES_PATH = "/src/entites"
+DAO_PATH = "/src/dao"
+TESTS_PATH = "/tests"
 
 def recuperer_cle_secrete():
     FICHIER_CLE_SECRETE = "Fichier_cle_secrete"
@@ -23,3 +22,10 @@ def recuperer_cle_secrete():
         if fichier:
             fichier.close()
     return cle
+
+def configurer_python_path():
+    racine_application = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, racine_application + MODELE_PATH)
+    sys.path.insert(0, racine_application + ENTITES_PATH)
+    sys.path.insert(0, racine_application + DAO_PATH)
+    sys.path.insert(0, racine_application + TESTS_PATH)
