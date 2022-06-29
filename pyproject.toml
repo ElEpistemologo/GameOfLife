@@ -2,9 +2,6 @@
 requires = ["setuptools","wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["src", "test"]
-
 [project]
 name = "gameoflife_serveur"
 version = "0.0.1"
