@@ -3,10 +3,8 @@
 import copy
 import json
 from typing import List
-import random
 
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
-from GameOfLifeException import GameOfLifeException
 from AutomateInterface import AutomateInterface
 
 

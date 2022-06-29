@@ -4,8 +4,8 @@ from flask import Flask, make_response, request, session
 from flask_cors import CORS
 import json
 import traceback
-import config
-config.configurer_pythonpath()
+
+#config.configurer_pythonpath()
 from DaoTest import DaoTest
 
 from DaoInterface import DaoInterface
@@ -14,8 +14,6 @@ from Utilisateur import Utilisateur
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 
 api = Flask(__name__)
-api.secret_key = config.recuperer_cle_secrete()
-cors = CORS(api, origins=["*"], supports_credentials=True)
 
 class DAOSingleton(object):
 
@@ -38,15 +36,17 @@ class DAOSingleton(object):
 def lancer_api():
     # daoSingleton = DAOSingleton()
     # daoSingleton.setDAO( DAO avec SQL )
-    # api.config.update(ENV="development", DEBUG=True)
     # api.run()
     pass
 
 def lancer_api_test():
     daoSingleton = DAOSingleton()
     daoSingleton.setDAO(DaoTest())
+    import config
+    api.secret_key = config.recuperer_cle_secrete()
+    cors = CORS(api, origins=["*"], supports_credentials=True)
     api.config.update(ENV="development", DEBUG=True)
-    api.run()
+    return api
 
 @api.route("/session")
 def retourner_session():
@@ -425,3 +425,6 @@ def creer_informations_utilisateur(utilisateur: Utilisateur):
         iterateur_configuration += 1
     reponse_json["configurations"] = liste_configurations
     return reponse_json
+
+if __name__ == "__main__":
+    lancer_api_test()

@@ -3,9 +3,6 @@
 import unittest
 from typing import List
 
-import config
-config.configurer_pythonpath()
-
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from DaoInterface import DaoInterface
