@@ -15,8 +15,6 @@ from ConfigurationAutomateInterface import ConfigurationAutomateInterface
 from Utilisateur import Utilisateur
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 
-api = Flask(__name__)
-
 class DAOSingleton(object):
 
     def __new__(cls):
@@ -35,14 +33,17 @@ class DAOSingleton(object):
     def getDAO() -> DaoInterface:
         return DAOSingleton.dao
 
+api = Flask(__name__)
+daoSingleton = DAOSingleton()
+
 def lancer_api():
     # daoSingleton = DAOSingleton()
     # daoSingleton.setDAO( DAO avec SQL )
     # api.run()
     pass
 
-def lancer_api_test():
-    daoSingleton = DAOSingleton()
+def lancer_api_test(**args):
+
     daoSingleton.setDAO(DaoTest())
     api.secret_key = config.recuperer_cle_secrete()
     cors = CORS(api, origins=["*"], supports_credentials=True)
