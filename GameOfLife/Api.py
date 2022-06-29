@@ -2,6 +2,7 @@
 
 from flask import Flask, make_response, request, session
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 import json
 import traceback
 
@@ -46,6 +47,9 @@ def lancer_api_test():
     api.secret_key = config.recuperer_cle_secrete()
     cors = CORS(api, origins=["*"], supports_credentials=True)
     api.config.update(ENV="development", DEBUG=True)
+    api.wsgi_app = ProxyFix(
+        api.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+    )
     return api
 
 @api.route("/session")
