@@ -2,9 +2,6 @@
 
 import unittest
 
-import config
-config.configurer_pythonpath()
-
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 from AutomateJohnConway import AutomateJohnConway
 

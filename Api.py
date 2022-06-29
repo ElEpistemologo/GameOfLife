@@ -5,7 +5,6 @@ from flask_cors import CORS
 import json
 import traceback
 
-#config.configurer_pythonpath()
 from DaoTest import DaoTest
 
 from DaoInterface import DaoInterface

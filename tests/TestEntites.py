@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
 import unittest
-import config
-config.configurer_pythonpath()
 
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 from Utilisateur import Utilisateur
