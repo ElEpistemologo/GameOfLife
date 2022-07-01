@@ -42,11 +42,11 @@ def lancer_api():
     # api.run()
     pass
 
-def lancer_api_test(**args):
+def lancer_api_test():
 
     daoSingleton.setDAO(DaoTest())
     api.secret_key = config.recuperer_cle_secrete()
-    cors = CORS(api, origins=["*"], supports_credentials=True)
+    cors = CORS(api, origins=["http://51.68.229.81:80"], supports_credentials=True)
     api.config.update(ENV="development", DEBUG=True)
     api.wsgi_app = ProxyFix(
         api.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
