@@ -46,8 +46,7 @@ def lancer_api_test():
 
     daoSingleton.setDAO(DaoTest())
     api.secret_key = config.recuperer_cle_secrete()
-    #cors = CORS(api, origins=["http://51.68.229.81:80"], supports_credentials=True)
-    cors = CORS(api, supports_credentials=True)
+    CORS(api, origins=["http://51.68.229.81"], supports_credentials=True)
     api.config.update(ENV="development", DEBUG=True)
     api.wsgi_app = ProxyFix(
         api.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
