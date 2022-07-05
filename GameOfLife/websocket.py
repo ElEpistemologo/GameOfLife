@@ -12,7 +12,7 @@ from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 
 serveur_web_socket = Flask("Web Socket Serveur")
 #socketio = SocketIO(serveur_web_socket, cors_allowed_origins =["http://51.68.229.81"], engineio_logger=True)
-socketio = SocketIO(serveur_web_socket, cors_allowed_origins =["http://localhost:3000"], engineio_logger=True)
+socketio = SocketIO(serveur_web_socket, cors_allowed_origins =["http://localhost:3000"])
 serveur_web_socket.wsgi_app = ProxyFix(
     serveur_web_socket.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
