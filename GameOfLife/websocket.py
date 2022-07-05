@@ -11,7 +11,8 @@ from AutomateThread import AutomateThread
 from ConfigurationAutomateJohnConway import ConfigurationAutomateJohnConway
 
 serveur_web_socket = Flask("Web Socket Serveur")
-socketio = SocketIO(serveur_web_socket, cors_allowed_origins =["http://51.68.229.81"], engineio_logger=True)
+#socketio = SocketIO(serveur_web_socket, cors_allowed_origins =["http://51.68.229.81"], engineio_logger=True)
+socketio = SocketIO(serveur_web_socket, cors_allowed_origins =["http://localhost:3000"], engineio_logger=True)
 serveur_web_socket.wsgi_app = ProxyFix(
     serveur_web_socket.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
@@ -35,6 +36,10 @@ def lancer_automate(message):
     sid = request.sid
     print(f"ordre - lancer automate, provenant de {sid}, message:{message}")
     dict_message = ast.literal_eval(str(message))
+    if sid in liste_thread_automate:
+        if liste_thread_automate[sid].is_alive():
+            print(f"ordre - lancer automate, provenant de {sid}, suprression de l'ancien automate")
+            liste_thread_automate[sid].stop_automate()
     configuration_automate = ConfigurationAutomateJohnConway(-1, "temp", [int(dict_message["largeur"]),
                                                                           int(dict_message["hauteur"]),
                                                                           dict_message["automate"]])
