@@ -404,7 +404,7 @@ def creer_utilisateur():
                         response = make_response(json.dumps({"message": "Ce pseudo est déjà utilisé"}))
                         response.headers.set("Content-type", "application/json; charser=utf8")
                         return response, 400
-                    # renvoyer les inforamtions du compte nouvellement créé
+                    # renvoyer les informations du compte nouvellement créé
                 except:
                     response = make_response(json.dumps({"message": "Création de compte impossible"}))
                     response.headers.set("Content-type", "application/json; charser=utf8")

@@ -1,5 +1,5 @@
 from typing import List
-from mysql.connector import connect, DatabaseError, InterfaceError
+from mysql.connector import connect, DatabaseError, InterfaceError, Error
 from ast import literal_eval
 import json
 import sys
@@ -28,6 +28,8 @@ except IOError as erreur:
 finally:
     if fichier:
         fichier.close()
+
+config_par_defaut = 4
 
 class DaoMySQL (DaoInterface):
 
@@ -69,21 +71,33 @@ class DaoMySQL (DaoInterface):
             return [utilisateur, True]
         else:
             return [None, False]
+
     #TODO: ajouter la gestion des exceptions pour si la requete échoue et retourner False dans ce cas
     def ajouter_nouvel_utilisateur(self, pseudo: str, mot_de_passe: str) -> bool:
 
         cnx = connect(pool_name="pool_connections")
         curseur = cnx.cursor()
         curseur2 = cnx.cursor()
-        requete = "INSERT INTO utilisateurs VALUES (%s, %s)"
-        curseur.execute(requete, (pseudo, mot_de_passe))
-        requete = "INSERT INTO reference VALUES (%s, %s)"
-        curseur2.execute(requete, (pseudo, config_par_defaut))
-        cnx.commit()
-        curseur.close()
-        curseur2.close()
-        cnx.close()
-        return True
+
+        try :
+            requete = "INSERT INTO utilisateurs VALUES (%s, %s)"
+            curseur.execute(requete, (pseudo, mot_de_passe))
+            requete = "INSERT INTO reference VALUES (%s, %s)"
+            curseur2.execute(requete, (pseudo, config_par_defaut))
+            cnx.commit()
+            return True
+
+        except Error as err:
+            print(err)
+            print("Error Code:", err.errno)
+            print("SQLSTATE", err.sqlstate)
+            print("Message", err.msg)
+            return False
+        finally:
+            curseur.close()
+            curseur2.close()
+            cnx.close()
+
 
     # TODO: ajouter la gestion des exceptions pour si la requete échoue et retourner False dans ce cas
     def supprimer_nouvel_utilisateur_par_pseudo(self, pseudo: str) -> bool:
@@ -91,75 +105,128 @@ class DaoMySQL (DaoInterface):
         cnx = connect(pool_name="pool_connections")
         curseur = cnx.cursor()
         curseur2 = cnx.cursor()
-        #suppression des configurations qui lui appartiennent
-        requete = "DELETE FROM configurations WHERE id IN (SELECT id FROM reference WHERE pseudo = %s) AND id != %s"
-        curseur.execute(requete, (pseudo,config_par_defaut))
-        #suppression de l'utilisateur
-        requete = "DELETE FROM utilisateurs WHERE pseud=%s"
-        curseur2.execute(requete, (pseudo,))
-        cnx.commit()
-        curseur.close()
-        curseur2.close()
-        cnx.close()
-        return True
+        try:
+            #suppression des configurations qui lui appartiennent
+            requete = "DELETE FROM configurations WHERE id IN (SELECT id FROM reference WHERE pseudo = %s) AND id != %s"
+            curseur.execute(requete, (pseudo,config_par_defaut))
+            #suppression de l'utilisateur
+            requete = "DELETE FROM utilisateurs WHERE pseud=%s"
+            curseur2.execute(requete, (pseudo,))
+            cnx.commit()
+            curseur.close()
+            curseur2.close()
+            cnx.close()
+            return True
+
+        except Error as err:
+            print(err)
+            print("Error Code:", err.errno)
+            print("SQLSTATE", err.sqlstate)
+            print("Message", err.msg)
+            return False
+
+        finally:
+            curseur.close()
+            curseur2.close()
+            cnx.close()
 
     def obtenir_configuration_automate_par_identifiants(self, identifiants: List[int]) -> [
         List[ConfigurationAutomateInterface], bool]:
 
         cnx = connect(pool_name="pool_connections")
-        curseur = cnx.cursor()
-        requete = "SELECT * FROM configurations WHERE id IN ({c})".format(c=', '.join(['%s']*len(identifiants)))
-        curseur.execute(requete, tuple(identifiants))
-        configurations = []
-        for (id, nom, parametres) in curseur:
-            parametres_json = json.loads(parametres)
-            parametre = [int(parametres_json["largeur"]), int(parametres_json["hauteur"]), literal_eval(parametres_json["etat_initial"])]
-            configurations.append(ConfigurationAutomateJohnConway(id, nom, parametre))
-        curseur.close()
-        cnx.close()
+        try:
+            curseur = cnx.cursor()
+            requete = "SELECT * FROM configurations WHERE id IN ({c})".format(c=', '.join(['%s']*len(identifiants)))
+            curseur.execute(requete, tuple(identifiants))
+            configurations = []
+            for (id, nom, parametres) in curseur:
+                parametres_json = json.loads(parametres)
+                parametre = [int(parametres_json["largeur"]), int(parametres_json["hauteur"]), literal_eval(parametres_json["etat_initial"])]
+                configurations.append(ConfigurationAutomateJohnConway(id, nom, parametre))
 
-        if configurations is None:
-            return [None, False]
-        else:
-            return [configurations, True]
+            if configurations is None:
+                return [None, False]
+            else:
+                return [configurations, True]
+
+        except Error as err:
+            print(err)
+            print("Error Code:", err.errno)
+            print("SQLSTATE", err.sqlstate)
+            print("Message", err.msg)
+            return False
+
+        finally:
+            curseur.close()
+            cnx.close()
 
     def ajouter_configuration_automate(self, nom: str, parametres: List, pseudo_utilisateur: str) -> [int, bool]:
 
         parametres_json = {"largeur":parametres[0], "hauteur":parametres[1], "etat_initial":str(parametres[2])}
         cnx = connect(pool_name="pool_connections")
-        curseur = cnx.cursor()
-        curseur2 = cnx.cursor()
-        requete = "INSERT INTO configurations (nom,parametres) VALUES (%s,%s)"
-        curseur.execute(requete, (nom,json.dumps(parametres_json)))
-        requete = "INSERT INTO reference VALUES (%s,%s)"
-        curseur2.execute(requete, (pseudo_utilisateur, curseur.lastrowid))
-        id_nouvelle_configuration = curseur.lastrowid
-        cnx.commit()
-        curseur.close()
-        curseur2.close()
-        cnx.close()
-        return [id_nouvelle_configuration, True]
+        try:
+            curseur = cnx.cursor()
+            curseur2 = cnx.cursor()
+            requete = "INSERT INTO configurations (nom,parametres) VALUES (%s,%s)"
+            curseur.execute(requete, (nom,json.dumps(parametres_json)))
+            requete = "INSERT INTO reference VALUES (%s,%s)"
+            curseur2.execute(requete, (pseudo_utilisateur, curseur.lastrowid))
+            id_nouvelle_configuration = curseur.lastrowid
+            cnx.commit()
+            return [id_nouvelle_configuration, True]
+
+        except Error as err:
+            print(err)
+            print("Error Code:", err.errno)
+            print("SQLSTATE", err.sqlstate)
+            print("Message", err.msg)
+            return False
+
+        finally:
+            curseur.close()
+            curseur2.close()
+            cnx.close()
 
     def modifier_configuration_automate(self, config: ConfigurationAutomateJohnConway) -> bool:
-
-        cnx = connect(pool_name="pool_connections")
-        curseur = cnx.cursor()
-        requete = "UPDATE configurations SET nom=%s, parametres=%s WHERE id=%s"
-        curseur.execute(requete, (config.nom, config.json_parametres(), config.identifiant))
-        cnx.commit()
-        curseur.close()
-        cnx.close()
-        return True
-
-    def supprimer_configuration_automate_par_identifiant(self, identifiant: int) -> bool:
-
-        if identifiant != config_par_defaut:
+        try:
             cnx = connect(pool_name="pool_connections")
             curseur = cnx.cursor()
-            requete = "DELETE FROM configurations WHERE id=%s"
-            curseur.execute(requete, (identifiant,))
+            requete = "UPDATE configurations SET nom=%s, parametres=%s WHERE id=%s"
+            curseur.execute(requete, (config.nom, config.json_parametres(), config.identifiant))
             cnx.commit()
+            return True
+
+        except Error as err:
+            print(err)
+            print("Error Code:", err.errno)
+            print("SQLSTATE", err.sqlstate)
+            print("Message", err.msg)
+            return False
+
+        finally:
             curseur.close()
             cnx.close()
-            return True
-        return False
+
+    def supprimer_configuration_automate_par_identifiant(self, identifiant: int) -> bool:
+        if identifiant != config_par_defaut:
+            try:
+
+                cnx = connect(pool_name="pool_connections")
+                curseur = cnx.cursor()
+                requete = "DELETE FROM configurations WHERE id=%s"
+                curseur.execute(requete, (identifiant,))
+                cnx.commit()
+                return True
+
+            except Error as err:
+                print(err)
+                print("Error Code:", err.errno)
+                print("SQLSTATE", err.sqlstate)
+                print("Message", err.msg)
+                return False
+
+            finally:
+                curseur.close()
+                cnx.close()
+        else:
+            return False
