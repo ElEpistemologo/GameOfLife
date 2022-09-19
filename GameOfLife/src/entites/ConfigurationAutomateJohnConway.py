@@ -25,6 +25,12 @@ class ConfigurationAutomateJohnConway(ConfigurationAutomateInterface):
                            "Etat_initial":self.etat_initial},
                           separators=(',', ':'))
 
+    def json_parametres(self) -> str :
+        return json.dumps({"largeur":self.largeur,
+                           "hauteur": self.hauteur,
+                           "etat_initial":self.etat_initial},
+                          separators=(',', ':'))
+
     # renvoie un dictionnaire contenant les paramètres de la configuration
     def parametres_configuration(self) -> Dict:
         return {"Identifiant": self.identifiant,

@@ -23,6 +23,7 @@ def recuperer_cle_secrete():
             fichier.close()
     return cle
 
+
 def configurer_python_path():
     racine_application = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, racine_application + MODELE_PATH)

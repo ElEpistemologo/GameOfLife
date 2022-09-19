@@ -12,11 +12,11 @@ class DaoInterface(ABC):
         pass
 
     @abstractmethod
-    def ajouter_nouvel_utilisateur(self, utilisateur: Utilisateur) -> bool:
+    def ajouter_nouvel_utilisateur(self, pseudo: str, mot_de_passe: str) -> bool:
         pass
 
     @abstractmethod
-    def supprimer_nouvel_utilisateur_par_pseudo(self, identifiant: str) -> bool:
+    def supprimer_nouvel_utilisateur_par_pseudo(self, pseudo: str) -> bool:
         pass
 
     @abstractmethod
@@ -24,7 +24,7 @@ class DaoInterface(ABC):
         pass
 
     @abstractmethod
-    def ajouter_configuration_automate(self, nom: str, parametres: List) -> [int, bool]:
+    def ajouter_configuration_automate(self, nom: str, parametres: List, pseudo_utilisateur: str) -> [int, bool]:
         pass
 
     @abstractmethod

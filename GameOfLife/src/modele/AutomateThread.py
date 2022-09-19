@@ -74,6 +74,7 @@ class AutomateThread (Thread):
 
     def run(self):
         while not self.stop:
+            time.sleep(0.1)
             while not self.pause and not self.stop:
                 self.automate.generation_suivante()
                 self.socketio.emit("maj_automate", self.automate.__str__(), room=self.sid)
@@ -99,7 +100,8 @@ class AutomateThread (Thread):
         self.socketio.emit("maj_automate", self.automate.__str__(), room=self.sid)
 
     def augmenter_vitesse(self):
-        self.generation_temps /= 4
+        if self.generation_temps > 0.125:
+            self.generation_temps /= 4
         print(f"Client {self.sid}, ordre: Augmenter vitesse")
 
     def diminuer_vitesse(self):

@@ -9,6 +9,7 @@ import traceback
 import config
 config.configurer_python_path()
 
+from DaoMySQL import DaoMySQL
 from DaoTest import DaoTest
 from DaoInterface import DaoInterface
 from ConfigurationAutomateInterface import ConfigurationAutomateInterface
@@ -37,17 +38,24 @@ api = Flask(__name__)
 daoSingleton = DAOSingleton()
 
 def lancer_api():
-    # daoSingleton = DAOSingleton()
-    # daoSingleton.setDAO( DAO avec SQL )
-    # api.run()
-    pass
+    daoSingleton.setDAO(DaoMySQL())
+    api.secret_key = config.recuperer_cle_secrete()
+    # CORS(api, origins=["http://51.68.229.81"], supports_credentials=True)
+    CORS(api, origins=["http://localhost:3000"], supports_credentials=True)
+    api.config.update(ENV="development", DEBUG=True)
+    api.wsgi_app = ProxyFix(
+        api.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+    )
+    return api
+
+configurations_publiques = [4]
 
 def lancer_api_test():
 
     daoSingleton.setDAO(DaoTest())
     api.secret_key = config.recuperer_cle_secrete()
     #CORS(api, origins=["http://51.68.229.81"], supports_credentials=True)
-    CORS(api, origins=["*"], supports_credentials=True)
+    CORS(api, origins=["http://localhost:3000"], supports_credentials=True)
     api.config.update(ENV="development", DEBUG=True)
     api.wsgi_app = ProxyFix(
         api.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
@@ -114,7 +122,7 @@ def retourner_configuration(identifiant):
         # si l'utilisateur a une session anonyme
         if pseudo == "Anonyme":
             # TODO: on pourra ajouter plus tard ici une liste de configuration publique
-            if int(identifiant) == 1:
+            if int(identifiant) in configurations_publiques:
                 resultat_requete_configuration = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants(
                     [int(identifiant)])
                 if (resultat_requete_configuration[1]):
@@ -191,14 +199,14 @@ def creer_configuration():
                         ajouter_configuration_automate(config_json["nom"],
                                                        [int(config_json["largeur"]),
                                                         int(config_json["hauteur"]),
-                                                        config_json["etat_initial"]])
+                                                        config_json["etat_initial"]], session["pseudo"])
                     if resultat_ajout_nouvel_config[1]:
-                        identifiant_nouvelle_config = resultat_ajout_nouvel_config[0]
-                        utilisateur = resultat_requete_utilisateur[0]
-                        utilisateur.ajouter_nouvelle_configuration(identifiant_nouvelle_config)
+                        # identifiant_nouvelle_config = resultat_ajout_nouvel_config[0]
+                        # utilisateur = resultat_requete_utilisateur[0]
+                        # utilisateur.ajouter_nouvelle_configuration(identifiant_nouvelle_config)
                         print(f"La tentative de création de configuration provenant de {request} et de l'utilisateur"
                               f" {pseudo} a réussie")
-                        response = make_response({"identifiant":identifiant_nouvelle_config})
+                        response = make_response({"identifiant":resultat_ajout_nouvel_config[0]})
                         response.headers.set("Content-type", "application/json; charser=utf8")
                         return response, 200
                     else:
@@ -240,7 +248,7 @@ def modifier_configuration():
                 for config_id in utilisateur.identifiants_configurations_automate:
                     if config_id  == int(requete_json["identifiant"]):
                         appartient = True
-                if appartient and int(requete_json["identifiant"]) != 1:
+                if appartient and int(requete_json["identifiant"]) not in configurations_publiques:
                     try:
                         # si la configuration existe bien, on la modifie
                         resultat_recherche_config = DAOSingleton.getDAO().obtenir_configuration_automate_par_identifiants([int(requete_json["identifiant"])])
@@ -382,9 +390,9 @@ def creer_utilisateur():
             if session["pseudo"] == "Anonyme":
                 requete_json = request.json
                 try:
-                    nouvel_utilisateur = Utilisateur(requete_json["pseudo"], requete_json["mot_de_passe"], [1])
-                    resultat_creation_utilisateur = DAOSingleton.getDAO().ajouter_nouvel_utilisateur(nouvel_utilisateur)
+                    resultat_creation_utilisateur = DAOSingleton.getDAO().ajouter_nouvel_utilisateur(requete_json["pseudo"], requete_json["mot_de_passe"])
                     if resultat_creation_utilisateur:
+                        nouvel_utilisateur = DAOSingleton.getDAO().obtenir_utilisateur_par_pseudo(requete_json["pseudo"])[0]
                         reponse_json = creer_informations_utilisateur(nouvel_utilisateur)
                         session["pseudo"] = nouvel_utilisateur.pseudo
                         response = make_response(json.dumps(reponse_json))
@@ -392,7 +400,7 @@ def creer_utilisateur():
                         return response, 200
                     else:
                         print(f"La tentative de créer un compte, provenant de {request} "
-                  f"a échoué, le compte au pseudo {nouvel_utilisateur.pseudo} existe déjà ")
+                  f"a échoué, le pseudo est déjà utilisé")
                         response = make_response(json.dumps({"message": "Ce pseudo est déjà utilisé"}))
                         response.headers.set("Content-type", "application/json; charser=utf8")
                         return response, 400
@@ -433,5 +441,6 @@ def creer_informations_utilisateur(utilisateur: Utilisateur):
     return reponse_json
 
 if __name__ == "__main__":
-    api = lancer_api_test()
+    #api = lancer_api_test()
+    api = lancer_api()
     api.run()
