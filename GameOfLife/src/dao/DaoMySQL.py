@@ -37,9 +37,9 @@ class DaoMySQL (DaoInterface):
             self.connexion = connect(pool_name="pool_connections", pool_size=5,
                                      host=info_db["host"], user=info_db["user"],
                                      password=info_db["password"], database=info_db["database"])
-            print(f"Connexion à la base de donnée {BASE} réussie")
+            print(f"Connexion à la base de donnée réussie")
         except (InterfaceError, DatabaseError) as erreur:
-            print(f"La connexion à la base {BASE} a échoué: {erreur}")
+            print(f"La connexion à la base a échoué: {erreur}")
 
     def obtenir_utilisateur_par_pseudo(self, pseudo: str) -> [Utilisateur, bool]:
 
